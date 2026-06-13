@@ -1,0 +1,185 @@
+\documentclass[12pt, a4paper]{article}
+
+% ---------- Paquetes ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{physics}          % \bra, \ket, \pdv, etc.
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{margin=2.5cm}
+
+% ---------- Metadata ----------
+\title{%
+  \textbf{Visualización Holográfica Analógica de Modelos Matemáticos Complejos}\\[0.5em]
+  \large Capítulo Estudiantil de Óptica
+}
+\author{
+  Nombre Autor 1\textsuperscript{1} \and
+  Nombre Autor 2\textsuperscript{1} \and
+  Nombre Autor 3\textsuperscript{1}
+}
+\date{
+  \textsuperscript{1}[Universidad] \\[0.5em]
+  \today
+}
+
+% ---------- Documento ----------
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% =====================================================================
+\section{Resumen}
+% =====================================================================
+
+\begin{abstract}
+Este trabajo presenta un sistema de visualización holográfica analógica
+diseñado para representar modelos matemáticos complejos de la física
+moderna ---incluyendo orbitales atómicos, la expansión cosmológica del
+universo y funciones de onda cuánticas--- de forma dinámica y tridimensional.
+Se describe el modelo matemático de cada fenómeno, el pipeline de simulación
+numérica y el método de proyección holográfica utilizado.
+\end{abstract}
+
+% =====================================================================
+\section{Introducción}
+% =====================================================================
+
+La comprensión intuitiva de fenómenos físicos abstractos como los orbitales
+cuánticos o la expansión del universo representa un reto pedagógico
+significativo. Las representaciones en papel o en pantallas bidimensionales
+pierden información espacial esencial. La holografía analógica ofrece la
+posibilidad de proyectar representaciones tridimensionales en tiempo real,
+generando una experiencia inmersiva que facilita la comprensión.
+
+\subsection{Objetivos}
+
+\begin{itemize}
+  \item Desarrollar modelos numéricos precisos de los fenómenos seleccionados.
+  \item Implementar un pipeline de conversión del modelo a patrón de interferencia holográfico.
+  \item Proyectar las visualizaciones de forma dinámica a medida que el modelo evoluciona.
+\end{itemize}
+
+% =====================================================================
+\section{Marco Teórico}
+% =====================================================================
+
+\subsection{Holografía Analógica}
+
+La holografía se basa en el registro de la figura de interferencia entre
+un haz de referencia $\mathbf{E}_R$ y un haz objeto $\mathbf{E}_O$:
+
+\begin{equation}
+  I(\mathbf{r}) = \left|\mathbf{E}_R + \mathbf{E}_O\right|^2
+  = |E_R|^2 + |E_O|^2 + E_R^* E_O + E_R E_O^*
+  \label{eq:interferencia}
+\end{equation}
+
+El término $E_R^* E_O$ contiene la información de amplitud y fase del haz
+objeto, que permite la reconstrucción tridimensional de la imagen.
+
+% -----------------------------------------------------------------------
+\subsection{Modelo Atómico: Orbitales del Hidrógeno}
+% -----------------------------------------------------------------------
+
+La función de onda del átomo de hidrógeno se expresa en coordenadas
+esféricas como:
+
+\begin{equation}
+  \psi_{nlm}(r, \theta, \varphi) = R_{nl}(r)\, Y_l^m(\theta, \varphi)
+  \label{eq:orbital}
+\end{equation}
+
+donde $R_{nl}(r)$ es la función radial y $Y_l^m(\theta, \varphi)$
+son los armónicos esféricos. La densidad de probabilidad observable es:
+
+\begin{equation}
+  \rho_{nlm}(r, \theta, \varphi) = \left|\psi_{nlm}\right|^2
+  \label{eq:densidad}
+\end{equation}
+
+% -----------------------------------------------------------------------
+\subsection{Expansión del Universo: Métrica FLRW}
+% -----------------------------------------------------------------------
+
+La métrica de Friedmann-Lemaître-Robertson-Walker describe el universo
+homogéneo e isótropo:
+
+\begin{equation}
+  ds^2 = -c^2\,dt^2 + a^2(t)\left[
+    \frac{dr^2}{1 - kr^2} + r^2\,d\Omega^2
+  \right]
+  \label{eq:flrw}
+\end{equation}
+
+La ecuación de Friedmann gobierna la evolución del factor de escala $a(t)$:
+
+\begin{equation}
+  H^2(t) \equiv \left(\frac{\dot{a}}{a}\right)^2
+  = \frac{8\pi G}{3}\rho - \frac{kc^2}{a^2} + \frac{\Lambda c^2}{3}
+  \label{eq:friedmann}
+\end{equation}
+
+% -----------------------------------------------------------------------
+\subsection{Funciones de Onda: Ecuación de Schrödinger}
+% -----------------------------------------------------------------------
+
+La ecuación de Schrödinger independiente del tiempo en una dimensión:
+
+\begin{equation}
+  \hat{H}\,\psi = E\,\psi \qquad \Rightarrow \qquad
+  -\frac{\hbar^2}{2m}\frac{d^2\psi}{dx^2} + V(x)\,\psi = E\,\psi
+  \label{eq:schrodinger}
+\end{equation}
+
+Se resuelve numéricamente mediante diferencias finitas sobre una grilla
+discreta con paso $\Delta x$, reduciendo el problema a un sistema de
+eigenvalores tridiagonal.
+
+% =====================================================================
+\section{Metodología}
+% =====================================================================
+
+\subsection{Pipeline de Simulación}
+
+% TODO: describir el pipeline completo
+\textit{(En desarrollo)}
+
+\subsection{Proyección Holográfica}
+
+% TODO: describir el método físico de proyección
+\textit{(Corresponde al equipo de óptica física)}
+
+% =====================================================================
+\section{Resultados}
+% =====================================================================
+
+% TODO: incluir figuras generadas por los scripts
+
+% =====================================================================
+\section{Conclusiones}
+% =====================================================================
+
+% TODO
+
+% =====================================================================
+\section*{Referencias}
+% =====================================================================
+
+\bibliographystyle{plain}
+\bibliography{../references/references}
+
+\end{document}

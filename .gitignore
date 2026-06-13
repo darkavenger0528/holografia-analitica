@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Outputs generados (no versionar binarios pesados)
+simulation/output/*.png
+simulation/output/*.mp4
+simulation/output/*.npy
+assets/exports/*.png
+assets/exports/*.mp4
+
+# LaTeX compilados
+docs/paper/*.pdf
+docs/paper/*.aux
+docs/paper/*.log
+docs/paper/*.out
+docs/paper/*.toc
+docs/paper/*.bbl
+docs/paper/*.blg
+docs/paper/*.synctex.gz
+docs/paper/_minted*/
+
+# Figures generadas (se regeneran con scripts)
+docs/figures/*.png
+docs/figures/*.pdf
+
+# Referencias (PDFs de papers — no subir por copyright)
+docs/references/*.pdf
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Datos grandes
+*.hdf5
+*.h5
+*.npz
