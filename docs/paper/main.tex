@@ -5,7 +5,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[spanish]{babel}
 \usepackage{amsmath, amssymb, amsthm}
-\usepackage{physics}          % \bra, \ket, \pdv, etc.
+\usepackage{physics}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{hyperref}
@@ -16,164 +16,483 @@
 \usepackage{subcaption}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 \geometry{margin=2.5cm}
 
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=green!50!black,
+  urlcolor=blue
+}
+
+% ---------- Colores personalizados ----------
+\definecolor{cosmoblue}{RGB}{30, 80, 160}
+\definecolor{cosmored}{RGB}{180, 40, 40}
+\definecolor{cosmogreen}{RGB}{30, 140, 80}
+
+% ---------- Entornos ----------
+\newtheorem{definicion}{Definición}[section]
+\newtheorem{observacion}{Observación}[section]
+
 % ---------- Metadata ----------
 \title{%
-  \textbf{Visualización Holográfica Analógica de Modelos Matemáticos Complejos}\\[0.5em]
-  \large Capítulo Estudiantil de Óptica
+  \textbf{Visualización Holográfica Analógica\\
+  de la Expansión Cosmológica del Universo}\\[0.8em]
+  \large Fundamentos Teóricos y Modelo Computacional\\[0.5em]
+  \normalsize Capítulo Estudiantil de Óptica
 }
 \author{
-  Nombre Autor 1\textsuperscript{1} \and
-  Nombre Autor 2\textsuperscript{1} \and
-  Nombre Autor 3\textsuperscript{1}
+  [Autor 1]\textsuperscript{1} \and
+  [Autor 2]\textsuperscript{1} \and
+  [Autor 3]\textsuperscript{1}
 }
 \date{
   \textsuperscript{1}[Universidad] \\[0.5em]
   \today
 }
 
-% ---------- Documento ----------
 \begin{document}
 
 \maketitle
-\tableofcontents
-\newpage
-
-% =====================================================================
-\section{Resumen}
-% =====================================================================
 
 \begin{abstract}
-Este trabajo presenta un sistema de visualización holográfica analógica
-diseñado para representar modelos matemáticos complejos de la física
-moderna ---incluyendo orbitales atómicos, la expansión cosmológica del
-universo y funciones de onda cuánticas--- de forma dinámica y tridimensional.
-Se describe el modelo matemático de cada fenómeno, el pipeline de simulación
-numérica y el método de proyección holográfica utilizado.
+Se presenta el desarrollo de un sistema de visualización holográfica
+analógica basado en el efecto Pepper's Ghost para representar dinámicamente
+la expansión cosmológica del universo descrita por el modelo
+Friedmann-Lemaître-Robertson-Walker (FLRW). El sistema integra la
+solución numérica de la ecuación de Friedmann con parámetros Planck 2018,
+una clasificación visual de objetos astronómicos (estrellas, planetas,
+asteroides) y un motor de renderizado en tiempo real mediante \texttt{pygame}.
+Se discuten los fundamentos de la métrica FLRW, el concepto de distancia
+comóvil, el horizonte de Hubble y la interpretación física del corrimiento
+al rojo cosmológico.
 \end{abstract}
+
+\tableofcontents
+\newpage
 
 % =====================================================================
 \section{Introducción}
 % =====================================================================
 
-La comprensión intuitiva de fenómenos físicos abstractos como los orbitales
-cuánticos o la expansión del universo representa un reto pedagógico
-significativo. Las representaciones en papel o en pantallas bidimensionales
-pierden información espacial esencial. La holografía analógica ofrece la
-posibilidad de proyectar representaciones tridimensionales en tiempo real,
-generando una experiencia inmersiva que facilita la comprensión.
+La cosmología moderna describe un universo en expansión acelerada cuya
+geometría y dinámica están gobernadas por las ecuaciones de Einstein.
+Comprender intuitivamente fenómenos como el alejamiento de las galaxias,
+el horizonte de Hubble o el corrimiento al rojo cosmológico resulta
+difícil a partir de representaciones bidimensionales estáticas.
+
+La técnica de Pepper's Ghost —conocida desde el siglo XIX en el
+contexto teatral~\cite{pepper1890}— permite crear ilusiones ópticas
+tridimensionales mediante la reflexión de imágenes en superficies de
+vidrio a 45°. Combinada con renderizado computacional en tiempo real,
+ofrece una plataforma potente para la divulgación científica de modelos
+físicos complejos.
+
+Este documento presenta los fundamentos teóricos del modelo cosmológico
+implementado y describe la arquitectura del sistema de visualización.
 
 \subsection{Objetivos}
 
 \begin{itemize}
-  \item Desarrollar modelos numéricos precisos de los fenómenos seleccionados.
-  \item Implementar un pipeline de conversión del modelo a patrón de interferencia holográfico.
-  \item Proyectar las visualizaciones de forma dinámica a medida que el modelo evoluciona.
+  \item Formular el modelo matemático de la expansión cosmológica FLRW.
+  \item Implementar la solución numérica de la ecuación de Friedmann
+        con parámetros cosmológicos actualizados (Planck 2018).
+  \item Desarrollar un sistema de visualización holográfica en tiempo
+        real que represente la evolución temporal del universo.
+  \item Distinguir visualmente tipos de objetos astronómicos
+        (estrellas, planetas, asteroides) mediante color y tamaño.
 \end{itemize}
 
 % =====================================================================
-\section{Marco Teórico}
+\section{Fundamentos del Efecto Pepper's Ghost}
 % =====================================================================
 
-\subsection{Holografía Analógica}
+\subsection{Principio óptico}
 
-La holografía se basa en el registro de la figura de interferencia entre
-un haz de referencia $\mathbf{E}_R$ y un haz objeto $\mathbf{E}_O$:
+El efecto Pepper's Ghost aprovecha la propiedad de reflexión parcial
+del vidrio. Cuando una lámina de vidrio se coloca a 45° respecto al
+observador y se ilumina una escena lateral (o inferior) mientras el
+fondo permanece oscuro, el vidrio refleja la imagen iluminada hacia el
+observador, quien la percibe como flotando en el espacio.
+
+La condición fundamental es que el fondo de la imagen proyectada sea
+completamente negro, ya que el vidrio no refleja la ausencia de luz
+—creando así la ilusión de transparencia del objeto holográfico.
+
+\subsection{Geometría del sistema}
+
+Para el setup utilizado en este proyecto (pantalla horizontal, vidrio
+superior a 45°), la relación geométrica entre la imagen proyectada
+$P$ y la imagen percibida $P'$ es una reflexión respecto al plano
+del vidrio:
 
 \begin{equation}
-  I(\mathbf{r}) = \left|\mathbf{E}_R + \mathbf{E}_O\right|^2
-  = |E_R|^2 + |E_O|^2 + E_R^* E_O + E_R E_O^*
-  \label{eq:interferencia}
+  P'(x, y, z) = P(x, y, -z + 2z_{\text{vidrio}})
+  \label{eq:reflexion}
 \end{equation}
 
-El término $E_R^* E_O$ contiene la información de amplitud y fase del haz
-objeto, que permite la reconstrucción tridimensional de la imagen.
-
-% -----------------------------------------------------------------------
-\subsection{Modelo Atómico: Orbitales del Hidrógeno}
-% -----------------------------------------------------------------------
-
-La función de onda del átomo de hidrógeno se expresa en coordenadas
-esféricas como:
+La distancia focal efectiva del sistema depende de la altura del vidrio
+sobre la pantalla $h$ y del ángulo de inclinación $\theta = 45°$:
 
 \begin{equation}
-  \psi_{nlm}(r, \theta, \varphi) = R_{nl}(r)\, Y_l^m(\theta, \varphi)
-  \label{eq:orbital}
+  d_{\text{focal}} = h \cdot \tan\theta = h
+  \label{eq:focal}
 \end{equation}
 
-donde $R_{nl}(r)$ es la función radial y $Y_l^m(\theta, \varphi)$
-son los armónicos esféricos. La densidad de probabilidad observable es:
+\subsection{Requisitos de la imagen proyectada}
+
+Para maximizar la calidad de la ilusión holográfica:
+
+\begin{enumerate}
+  \item Fondo completamente negro (\texttt{RGB} = $(0,0,0)$).
+  \item Objetos con alta saturación y brillo ($V > 0{,}7$ en HSV).
+  \item Resolución suficiente para que el vidrio no difracte
+        perceptiblemente ($\lambda_{\text{pixel}} \ll d_{\text{vidrio}}$).
+\end{enumerate}
+
+% =====================================================================
+\section{Modelo Cosmológico FLRW}
+% =====================================================================
+
+\subsection{La métrica de Friedmann-Lemaître-Robertson-Walker}
+
+El Principio Cosmológico establece que el universo es homogéneo e
+isótropo a grandes escalas. Bajo esta hipótesis, la métrica del
+espacio-tiempo adopta la forma FLRW~\cite{ryden2017}:
 
 \begin{equation}
-  \rho_{nlm}(r, \theta, \varphi) = \left|\psi_{nlm}\right|^2
-  \label{eq:densidad}
-\end{equation}
-
-% -----------------------------------------------------------------------
-\subsection{Expansión del Universo: Métrica FLRW}
-% -----------------------------------------------------------------------
-
-La métrica de Friedmann-Lemaître-Robertson-Walker describe el universo
-homogéneo e isótropo:
-
-\begin{equation}
+  \boxed{
   ds^2 = -c^2\,dt^2 + a^2(t)\left[
-    \frac{dr^2}{1 - kr^2} + r^2\,d\Omega^2
+    \frac{dr^2}{1 - kr^2} + r^2\left(d\theta^2 + \sin^2\theta\,d\varphi^2\right)
   \right]
+  }
   \label{eq:flrw}
 \end{equation}
 
-La ecuación de Friedmann gobierna la evolución del factor de escala $a(t)$:
+donde:
+\begin{itemize}
+  \item $a(t)$ es el \textbf{factor de escala}, que describe cómo
+        cambia el tamaño del universo con el tiempo.
+  \item $k \in \{-1, 0, +1\}$ es el parámetro de curvatura
+        (hiperbólico, plano, esférico).
+  \item $(r, \theta, \varphi)$ son coordenadas comóviles, que se
+        mueven con el fluido cosmológico.
+\end{itemize}
+
+Las observaciones del fondo cósmico de microondas indican que el
+universo es espacialmente plano ($k \approx 0$) con alta
+precisión~\cite{planck2018}.
+
+\subsection{Coordenadas comóviles y distancia física}
+
+Un concepto central en la visualización es la distinción entre
+coordenada comóvil $\chi$ y distancia física $d$:
 
 \begin{equation}
+  d(t) = a(t) \cdot \chi
+  \label{eq:dist_fisica}
+\end{equation}
+
+Las coordenadas comóviles no cambian con la expansión — son etiquetas
+fijas asignadas a cada galaxia. Lo que cambia es el factor de escala
+$a(t)$, que ``estira'' el espacio entre ellas.
+
+\begin{definicion}[Distancia comóvil]
+La distancia comóvil entre dos puntos es la distancia que tendría
+entre ellos si se eliminara la expansión del universo, es decir,
+si se evaluara con el factor de escala actual $a(t_0) = 1$.
+\end{definicion}
+
+En la simulación, cada galaxia tiene una posición comóvil fija
+$\boldsymbol{\chi}_i$. Su posición física en el instante $t$ es:
+
+\begin{equation}
+  \mathbf{r}_i(t) = a(t)\,\boldsymbol{\chi}_i
+  \label{eq:pos_fisica}
+\end{equation}
+
+\subsection{La ecuación de Friedmann}
+
+Aplicando las ecuaciones de campo de Einstein a la métrica FLRW con
+un fluido perfecto de densidad $\rho$ y presión $p$, se obtiene la
+\textbf{ecuación de Friedmann}:
+
+\begin{equation}
+  \boxed{
   H^2(t) \equiv \left(\frac{\dot{a}}{a}\right)^2
-  = \frac{8\pi G}{3}\rho - \frac{kc^2}{a^2} + \frac{\Lambda c^2}{3}
+  = \frac{8\pi G}{3}\rho_{\text{tot}} - \frac{kc^2}{a^2}
+  }
   \label{eq:friedmann}
 \end{equation}
 
-% -----------------------------------------------------------------------
-\subsection{Funciones de Onda: Ecuación de Schrödinger}
-% -----------------------------------------------------------------------
+donde $H(t)$ es el \textbf{parámetro de Hubble} y $\rho_{\text{tot}}$
+incluye todas las componentes energéticas del universo.
 
-La ecuación de Schrödinger independiente del tiempo en una dimensión:
+\subsection{Componentes de energía y parámetros de densidad}
+
+El universo estándar ($\Lambda$CDM) contiene cuatro componentes:
 
 \begin{equation}
-  \hat{H}\,\psi = E\,\psi \qquad \Rightarrow \qquad
-  -\frac{\hbar^2}{2m}\frac{d^2\psi}{dx^2} + V(x)\,\psi = E\,\psi
-  \label{eq:schrodinger}
+  \rho_{\text{tot}} = \rho_r + \rho_m + \rho_\Lambda
+  \label{eq:densidades}
 \end{equation}
 
-Se resuelve numéricamente mediante diferencias finitas sobre una grilla
-discreta con paso $\Delta x$, reduciendo el problema a un sistema de
-eigenvalores tridiagonal.
+Cada componente escala diferente con $a(t)$:
+
+\begin{table}[H]
+  \centering
+  \caption{Componentes energéticas del universo $\Lambda$CDM}
+  \begin{tabular}{llcc}
+    \toprule
+    Componente & Símbolo & Escala con $a$ & $\Omega_i$ (Planck 2018) \\
+    \midrule
+    Radiación      & $\rho_r$        & $a^{-4}$ & $9{,}24 \times 10^{-5}$ \\
+    Materia oscura + bariónica & $\rho_m$ & $a^{-3}$ & $0{,}315$ \\
+    Energía oscura ($\Lambda$) & $\rho_\Lambda$ & $a^0$ (constante) & $0{,}685$ \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:componentes}
+\end{table}
+
+Definiendo los parámetros de densidad adimensionales
+$\Omega_i = \rho_i / \rho_c$ con $\rho_c = 3H_0^2/(8\pi G)$,
+la ecuación de Friedmann toma la forma normalizada:
+
+\begin{equation}
+  \frac{H^2(a)}{H_0^2} = \frac{\Omega_r}{a^4}
+                        + \frac{\Omega_m}{a^3}
+                        + \frac{\Omega_k}{a^2}
+                        + \Omega_\Lambda
+  \label{eq:friedmann_norm}
+\end{equation}
+
+con $\Omega_k = 1 - \Omega_r - \Omega_m - \Omega_\Lambda \approx 0$.
+
+\subsection{Solución numérica de $a(t)$}
+
+La ecuación diferencial que gobierna $a(t)$ se obtiene de
+(\ref{eq:friedmann_norm}):
+
+\begin{equation}
+  \dot{a} = H_0\,a\,\sqrt{\frac{\Omega_r}{a^4}
+            + \frac{\Omega_m}{a^3} + \Omega_\Lambda}
+  \label{eq:ode_a}
+\end{equation}
+
+Esta ODE se resuelve numéricamente mediante el método
+Runge-Kutta de orden 4-5 (RK45) con tolerancias relativas
+$\varepsilon_{\text{rel}} = 10^{-9}$ y absolutas
+$\varepsilon_{\text{abs}} = 10^{-11}$, usando la implementación
+\texttt{scipy.integrate.solve\_ivp}.
+
+Los parámetros iniciales son $a(t_{\min}) = 10^{-3}$ con
+$t_{\min} = 0{,}5\,\text{Gyr}$, y la solución se normaliza
+de modo que $a(t_0) = 1$ con $t_0 = 13{,}8\,\text{Gyr}$.
+
+\subsection{El parámetro de Hubble y la ley de Hubble-Lemaître}
+
+El parámetro de Hubble actual tiene el valor~\cite{planck2018}:
+
+\begin{equation}
+  H_0 = 67{,}4 \pm 0{,}5 \;\text{km\,s}^{-1}\text{Mpc}^{-1}
+  \label{eq:H0}
+\end{equation}
+
+La \textbf{ley de Hubble-Lemaître} establece que la velocidad de
+recesión de una galaxia es proporcional a su distancia:
+
+\begin{equation}
+  v = H(t)\,d
+  \label{eq:hubble_law}
+\end{equation}
+
+\subsection{El horizonte de Hubble}
+
+El \textbf{horizonte de Hubble} $d_H(t)$ define la distancia a la que
+los objetos se alejan a la velocidad de la luz:
+
+\begin{equation}
+  d_H(t) = \frac{c}{H(t)}
+  \label{eq:horizonte}
+\end{equation}
+
+Objetos más allá del horizonte de Hubble se alejan superluminalmente
+(lo que no viola la relatividad especial, pues es el espacio mismo el
+que se expande). En la visualización, el horizonte de Hubble se
+representa como una esfera que crece con $a(t)$.
+
+\subsection{Corrimiento al rojo cosmológico}
+
+La expansión del universo produce un corrimiento al rojo de la luz
+emitida por objetos distantes. Para un fotón emitido cuando
+$a = a_e$ y recibido cuando $a = a_r = 1$:
+
+\begin{equation}
+  1 + z = \frac{a_r}{a_e} = \frac{1}{a_e}
+  \label{eq:redshift}
+\end{equation}
+
+En la visualización, el corrimiento al rojo se codifica mediante
+el color de cada objeto: objetos cercanos (bajo $z$) se representan
+en azul-blanco, mientras que objetos lejanos (alto $z$) se muestran
+en tonos rojos-anaranjados.
 
 % =====================================================================
-\section{Metodología}
+\section{Clasificación de Objetos Astronómicos}
 % =====================================================================
 
-\subsection{Pipeline de Simulación}
+Para enriquecer pedagógicamente la visualización, se incluyen cuatro
+tipos de objetos con características visuales diferenciadas:
 
-% TODO: describir el pipeline completo
-\textit{(En desarrollo)}
+\begin{table}[H]
+  \centering
+  \caption{Clasificación visual de objetos en la simulación}
+  \begin{tabular}{llccc}
+    \toprule
+    Tipo & Color base & Tamaño relativo & Brillo & Fracción \\
+    \midrule
+    Estrella (sol) & Amarillo/blanco/naranja/rojo (tipos espectrales) & Grande, con halo & Alto & 4\% \\
+    Planeta    & Azul, cian, verde, marrón, rojo, violeta & Mediano & Medio  & 18\% \\
+    Asteroide  & Gris-marrón      & Diminuto & Bajo   & 76\% \\
+    Galaxia    & Violeta/magenta, disco elíptico difuso & Grande (halo) & Medio (aditivo) & 1\% \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:objetos}
+\end{table}
 
-\subsection{Proyección Holográfica}
+Las estrellas reciben además un \textbf{halo de brillo} (glow) generado
+mediante un degradado radial horneado en el canal RGB y compuesto sobre
+la escena con mezcla aditiva (\texttt{BLEND\_ADD}), lo que simula la
+dispersión de luz característica de fuentes puntuales muy brillantes.
+Las galaxias emplean el mismo mecanismo pero con un degradado
+\textbf{elíptico}, orientado con un ángulo aleatorio fijo por galaxia,
+para sugerir la forma de un disco galáctico visto en perspectiva.
 
-% TODO: describir el método físico de proyección
-\textit{(Corresponde al equipo de óptica física)}
+Todos los objetos siguen la misma dinámica comóvil descrita por
+(\ref{eq:pos_fisica}), diferenciándose únicamente en su representación
+visual. Las galaxias se distribuyen preferentemente a mayor distancia
+comóvil ($\chi \gtrsim 0.35$), reforzando la sensación de profundidad
+al ubicarse como fondo difuso detrás de las estrellas y planetas.
 
 % =====================================================================
-\section{Resultados}
+\section{Arquitectura del Sistema de Visualización}
 % =====================================================================
 
-% TODO: incluir figuras generadas por los scripts
+\subsection{Pipeline de renderizado}
+
+El pipeline de renderizado en tiempo real sigue los siguientes pasos
+en cada frame:
+
+\begin{enumerate}
+  \item \textbf{Actualización temporal:} avanzar $t_{\text{sim}}$
+        según la velocidad de simulación $v_s$:
+        \[
+          t_{\text{sim}} \leftarrow t_{\text{sim}}
+          + \frac{T_{\text{max}} - T_{\text{min}}}{T_{\text{ciclo}}}
+          \cdot \Delta t_{\text{real}} \cdot v_s
+        \]
+  \item \textbf{Interpolación de $a(t)$:} consultar la tabla
+        precalculada de $a(t)$ e interpolar linealmente.
+  \item \textbf{Cálculo de posiciones físicas:}
+        $\mathbf{r}_i = a(t)\,\boldsymbol{\chi}_i$
+  \item \textbf{Rotación y proyección 3D$\to$2D:} aplicar rotación
+        en $Y$ y proyección perspectiva con distancia focal $d_f$.
+  \item \textbf{Composición Pepper's Ghost:} centrar en fondo negro.
+  \item \textbf{HUD:} superponer información de tiempo, $a(t)$
+        y controles.
+\end{enumerate}
+
+\subsection{Proyección perspectiva}
+
+Para proyectar las posiciones 3D $(x, y, z)$ a píxeles 2D
+$(p_x, p_y)$:
+
+\begin{equation}
+  p_x = c_x + \frac{x \cdot s \cdot d_f}{z + d_f}, \qquad
+  p_y = c_y - \frac{y \cdot s \cdot d_f}{z + d_f}
+  \label{eq:perspectiva}
+\end{equation}
+
+donde $(c_x, c_y)$ es el centro de la pantalla, $s$ es la escala
+en píxeles y $d_f = 2{,}5$ es la distancia focal normalizada.
+
+\subsection{Parámetros de simulación}
+
+\begin{table}[H]
+  \centering
+  \caption{Parámetros de la simulación}
+  \begin{tabular}{lll}
+    \toprule
+    Parámetro & Valor & Descripción \\
+    \midrule
+    $N_{\text{soles}}$       & 60       & Estrellas (con halo de brillo) \\
+    $N_{\text{planetas}}$    & 260      & Cuerpos medianos de colores variados \\
+    $N_{\text{asteroides}}$  & 1100     & Objetos diminutos (polvo cósmico) \\
+    $N_{\text{galaxias}}$    & 18       & Discos elípticos difusos de fondo \\
+    $N_{\text{objetos}}$     & 1438     & Total de objetos simulados \\
+    $T_{\text{min}}$     & 0,5 Gyr  & Tiempo inicial (post Big Bang) \\
+    $T_{\text{max}}$     & 30 Gyr   & Tiempo final de simulación \\
+    $T_{\text{ciclo}}$   & 60 s     & Duración real de un ciclo \\
+    $f_{\text{target}}$  & 60 fps   & Fotogramas por segundo objetivo \\
+    Supersampling        & $1{,}75\times$ & Factor de sobremuestreo para antialiasing \\
+    $H_0$                & 67,4 km/s/Mpc & Constante de Hubble (Planck 2018) \\
+    $\Omega_m$           & 0,315    & Parámetro de densidad de materia \\
+    $\Omega_\Lambda$     & 0,685    & Parámetro de energía oscura \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:parametros}
+\end{table}
+
+\subsection{Antialiasing por sobremuestreo}
+
+Para mejorar la calidad visual de los bordes de cada objeto (críticos
+en una proyección Pepper's Ghost, donde el vidrio amplifica cualquier
+artefacto de aliasing), la escena se renderiza primero sobre una
+superficie interna de resolución $1{,}75$ veces mayor que la pantalla
+de salida, y luego se reescala hacia abajo mediante interpolación
+bilineal (\texttt{pygame.transform.smoothscale}). Este sobremuestreo
+suaviza los bordes de círculos, halos y discos galácticos sin requerir
+antialiasing por hardware.
+
+% =====================================================================
+\section{Resultados Esperados}
+% =====================================================================
+
+La simulación reproduce cualitativamente los siguientes fenómenos:
+
+\begin{enumerate}
+  \item \textbf{Expansión acelerada:} para $t > 7\,\text{Gyr}$,
+        la energía oscura domina y $\ddot{a} > 0$, visible como
+        un alejamiento progresivamente más rápido de los objetos.
+  \item \textbf{Corrimiento al rojo:} objetos distantes presentan
+        tonos rojizos, consistente con $z \propto 1/a$.
+  \item \textbf{Horizonte de Hubble:} la esfera límite crece más
+        lentamente que los objetos en sus bordes, ilustrando la
+        naturaleza del horizonte cosmológico.
+  \item \textbf{Momento presente ($t = 13{,}8\,\text{Gyr}$):}
+        marcado visualmente para contextualizar la posición del
+        observador en el tiempo cósmico.
+\end{enumerate}
 
 % =====================================================================
 \section{Conclusiones}
 % =====================================================================
 
-% TODO
+Se ha desarrollado un sistema de visualización holográfica basado en
+Pepper's Ghost que integra un modelo cosmológico FLRW numéricamente
+preciso con un motor de renderizado en tiempo real. La visualización
+permite apreciar de forma intuitiva la expansión acelerada del universo,
+el corrimiento al rojo y el horizonte de Hubble, fenómenos de difícil
+comprensión en representaciones estáticas convencionales.
+
+Como trabajo futuro se propone incluir filamentos de la estructura a
+gran escala, animación del fondo cósmico de microondas y la transición
+entre las épocas de dominación de radiación, materia y energía oscura.
 
 % =====================================================================
 \section*{Referencias}
