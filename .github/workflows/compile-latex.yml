@@ -1,0 +1,27 @@
+name: Compilar Documento LaTeX
+
+on:
+  push:
+    branches:
+      - main  # Se ejecutará cada vez que subas cambios a la rama 'main'
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Descarga el código de tu repositorio en el servidor de GitHub
+      - name: Set up Git repository
+        uses: actions/checkout@v4
+
+      # 2. Compila el archivo LaTeX usando la acción que encontraste
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: main.tex
+
+      # 3. Sube el PDF resultante para que lo puedas descargar desde GitHub
+      - name: Upload PDF file
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mi-Documento-PDF
+          path: main.pdf
