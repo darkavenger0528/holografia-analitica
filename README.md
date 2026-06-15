@@ -34,8 +34,8 @@ holografia-analitica/
 
 | Modelo | Estado | Descripción |
 |---|---|---|
-| Orbital atómico (H) | 🔄 En desarrollo | Orbitales del átomo de hidrógeno (nlm) |
-| Expansión del universo | 📋 Planeado | Métrica FLRW, factor de escala a(t) |
+| Expansión del universo | ✅ Listo (tiempo real) | Métrica FLRW, soles/planetas/asteroides/galaxias, factor de escala a(t) |
+| Orbital atómico (H) | ✅ Listo (tiempo real) | Nube de probabilidad \|ψ_nlm\|², ciclo 1s→2s→2p→3d |
 | Función de onda 1D | 📋 Planeado | Pozo de potencial infinito, oscilador armónico |
 | Función de onda 3D | 📋 Planeado | Ecuación de Schrödinger en 3D |
 
@@ -77,3 +77,31 @@ Capítulo Estudiantil de Óptica — [Universidad]
 ## Licencia
 
 MIT License — ver `LICENSE`
+
+---
+
+## Cómo ejecutar los modelos
+
+```bash
+# Activar entorno
+source .venv/bin/activate
+
+# Menú interactivo
+python run_model.py
+
+# Directo en pantalla principal (desarrollo/pruebas)
+python run_model.py universe
+
+# En pantalla HDMI (Android como display externo)
+python run_model.py universe --display 1 --fullscreen
+```
+
+### Controles durante la proyección
+
+| Tecla | Acción |
+|---|---|
+| `ESPACIO` | Pausar / reanudar |
+| `R` | Reiniciar desde el Big Bang |
+| `+` / `-` | Acelerar / ralentizar la simulación |
+| `F` | Fullscreen |
+| `ESC` | Salir |
