@@ -36,7 +36,7 @@ holografia-analitica/
 |---|---|---|
 | Expansión del universo | ✅ Listo (tiempo real) | Métrica FLRW, soles/planetas/asteroides/galaxias, factor de escala a(t) |
 | Orbital atómico (H) | ✅ Listo (tiempo real) | Nube de probabilidad \|ψ_nlm\|², ciclo 1s→2s→2p→3d |
-| Función de onda 1D | 📋 Planeado | Pozo de potencial infinito, oscilador armónico |
+| Función de onda 1D | ✅ Listo (tiempo real) | Ψ(x,t) compleja: pozo infinito, oscilador armónico, doble pozo |
 | Función de onda 3D | 📋 Planeado | Ecuación de Schrödinger en 3D |
 
 ---
