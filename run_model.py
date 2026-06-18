@@ -44,9 +44,15 @@ MODELOS = {
         detalle = "Pozo infinito · Oscilador armónico · Doble pozo · 20s c/u",
         controles = "ESPACIO=pausa  R=reiniciar  ←/→=sistema  +/-=velocidad",
     ),
+    "wavefunction3d": dict(
+        script  = "wavefunction3d_realtime.py",
+        desc    = "Función de onda Ψ(x,y,z,t) — 3D",
+        detalle = "Pozo esférico · Oscilador 3D · Paquete anisótropo · 20s c/u (MCMC)",
+        controles = "ESPACIO=pausa  R=reiniciar  ←/→=sistema  +/-=velocidad",
+    ),
 }
 
-DEMO_ORDEN   = ["universe", "atomic", "wavefunction"]
+DEMO_ORDEN   = ["universe", "atomic", "wavefunction", "wavefunction3d"]
 DEMO_DURACION = 60  # segundos por modelo en modo demo (usar Ctrl+C para avanzar)
 
 
