@@ -43,16 +43,16 @@
 \title{%
   \textbf{Visualización Holográfica Analógica\\
   de Modelos Físicos Complejos}\\[0.8em]
-  \large Expansión Cosmológica del Universo y Orbitales Atómicos\\[0.5em]
+  \large Expansión Cosmológica del Universo, Orbitales Atómicos\\
+  y Funciones de Onda Cuánticas\\[0.5em]
   \normalsize Capítulo Estudiantil de Óptica
 }
 \author{
-  [Autor 1]\textsuperscript{1} \and
-  [Autor 2]\textsuperscript{1} \and
-  [Autor 3]\textsuperscript{1}
+  Justin Moreno\textsuperscript{1} \and
+  Ángel Velásquez\textsuperscript{1}
 }
 \date{
-  \textsuperscript{1}[Universidad] \\[0.5em]
+  \textsuperscript{1}Universidad EAN \\[0.5em]
   \today
 }
 
@@ -63,21 +63,27 @@
 \begin{abstract}
 Se presenta el desarrollo de un sistema de visualización holográfica
 analógica basado en el efecto Pepper's Ghost para representar
-dinámicamente dos modelos físicos de difícil comprensión intuitiva: la
-expansión cosmológica del universo, descrita por el modelo
-Friedmann-Lemaître-Robertson-Walker (FLRW), y los orbitales atómicos del
-hidrógeno, solución de la ecuación de Schrödinger con potencial
-coulombiano. El sistema integra la solución numérica de la ecuación de
+dinámicamente cuatro modelos físicos de difícil comprensión intuitiva:
+la expansión cosmológica del universo, descrita por el modelo
+Friedmann-Lemaître-Robertson-Walker (FLRW); los orbitales atómicos del
+hidrógeno, solución estacionaria de la ecuación de Schrödinger con
+potencial coulombiano; y la evolución temporal de paquetes de onda
+cuánticos en una y tres dimensiones, $\Psi(x,t)$ y $\Psi(x,y,z,t)$,
+en pozos de potencial, osciladores armónicos y potenciales de doble
+pozo. El sistema integra la solución numérica de la ecuación de
 Friedmann con parámetros Planck 2018, una clasificación visual de
-objetos astronómicos (estrellas, planetas, asteroides, galaxias), y una
-representación de orbitales atómicos mediante muestreo de su densidad
-de probabilidad $|\psi_{nlm}|^2$, todo ello mediante un motor de
+objetos astronómicos (estrellas, planetas, asteroides, galaxias), el
+muestreo de la densidad de probabilidad $|\psi_{nlm}|^2$ de los
+orbitales atómicos, y la evolución temporal de superposiciones de
+autoestados cuánticos muestreadas mediante el algoritmo de
+Metropolis--Hastings en el caso 3D, todo ello mediante un motor de
 renderizado en tiempo real basado en \texttt{pygame}. Se discuten los
 fundamentos de la métrica FLRW, el concepto de distancia comóvil, el
 horizonte de Hubble, el corrimiento al rojo cosmológico, la separación
-de variables en la ecuación de Schrödinger, los polinomios de Laguerre
-asociados y los armónicos esféricos reales que dan lugar a las formas
-clásicas de los orbitales $s$, $p$ y $d$.
+de variables en la ecuación de Schrödinger, los polinomios de
+Hermite y Laguerre asociados, los armónicos esféricos reales, la
+resolución numérica por diferencias finitas y el muestreo de
+distribuciones de probabilidad mediante cadenas de Markov.
 \end{abstract}
 
 \tableofcontents
@@ -90,24 +96,26 @@ clásicas de los orbitales $s$, $p$ y $d$.
 La física moderna está llena de fenómenos cuya comprensión intuitiva
 resulta difícil a partir de representaciones bidimensionales estáticas:
 el alejamiento de las galaxias y el horizonte de Hubble en cosmología,
-o la forma tridimensional de los orbitales electrónicos en mecánica
-cuántica, son ejemplos paradigmáticos donde una imagen fija o una
+la forma tridimensional de los orbitales electrónicos, o la evolución
+temporal de un paquete de onda cuántico —incluyendo el fenómeno de
+tunelamiento— son ejemplos paradigmáticos donde una imagen fija o una
 fórmula transmiten solo una fracción de la estructura real del
 fenómeno.
 
 La técnica de Pepper's Ghost —conocida desde el siglo XIX en el
 contexto teatral~\cite{pepper1890}— permite crear ilusiones ópticas
 tridimensionales mediante la reflexión de imágenes en superficies de
-vidrio a $45^\circ$. Combinada con renderizado computacional en tiempo real,
-ofrece una plataforma potente para la divulgación científica de modelos
-físicos complejos, independientemente de la escala del fenómeno
-representado: desde la expansión del universo observable hasta la nube
-de probabilidad de un electrón.
+vidrio a $45^\circ$. Combinada con renderizado computacional en tiempo
+real, ofrece una plataforma potente para la divulgación científica de
+modelos físicos complejos, independientemente de la escala del
+fenómeno representado: desde la expansión del universo observable
+hasta la evolución temporal de la función de onda de una partícula
+cuántica.
 
-Este documento presenta los fundamentos teóricos de los dos modelos
-implementados —expansión cosmológica FLRW y orbitales atómicos del
-hidrógeno— y describe la arquitectura compartida del sistema de
-visualización.
+Este documento presenta los fundamentos teóricos de los cuatro modelos
+implementados —expansión cosmológica FLRW, orbitales atómicos del
+hidrógeno, funciones de onda 1D y funciones de onda 3D— y describe la
+arquitectura compartida del sistema de visualización.
 
 \subsection{Objetivos}
 
@@ -121,12 +129,19 @@ visualización.
   \item Implementar un método de muestreo de la densidad de
         probabilidad $|\psi_{nlm}|^2$ que permita visualizar las
         formas características de los orbitales $s$, $p$ y $d$.
+  \item Formular y resolver numéricamente la evolución temporal de
+        paquetes de onda cuánticos $\Psi(x,t)$ en sistemas 1D
+        (pozo infinito, oscilador armónico, doble pozo).
+  \item Extender la representación de paquetes de onda al caso
+        tridimensional $\Psi(x,y,z,t)$ mediante muestreo por cadenas
+        de Markov para sistemas no separables.
   \item Desarrollar un sistema de visualización holográfica en tiempo
         real, con una arquitectura de renderizado compartida, que
-        represente ambos modelos.
+        represente los cuatro modelos.
   \item Distinguir visualmente los distintos elementos de cada modelo
         (tipos de objetos astronómicos; lóbulos de fase positiva y
-        negativa de los orbitales) mediante color y tamaño.
+        negativa de orbitales y paquetes de onda) mediante color y
+        tamaño.
 \end{itemize}
 
 % =====================================================================
@@ -136,8 +151,8 @@ visualización.
 \subsection{Principio óptico}
 
 El efecto Pepper's Ghost aprovecha la propiedad de reflexión parcial
-del vidrio. Cuando una lámina de vidrio se coloca a $45^\circ$ respecto al
-observador y se ilumina una escena lateral (o inferior) mientras el
+del vidrio. Cuando una lámina de vidrio se coloca a $45^\circ$ respecto
+al observador y se ilumina una escena lateral (o inferior) mientras el
 fondo permanece oscuro, el vidrio refleja la imagen iluminada hacia el
 observador, quien la percibe como flotando en el espacio.
 
@@ -148,17 +163,18 @@ completamente negro, ya que el vidrio no refleja la ausencia de luz
 \subsection{Geometría del sistema}
 
 Para el setup utilizado en este proyecto (pantalla horizontal, vidrio
-superior a $45^\circ$), la relación geométrica entre la imagen proyectada
-$P$ y la imagen percibida $P'$ es una reflexión respecto al plano
-del vidrio:
+superior a $45^\circ$), la relación geométrica entre la imagen
+proyectada $P$ y la imagen percibida $P'$ es una reflexión respecto al
+plano del vidrio:
 
 \begin{equation}
   P'(x, y, z) = P(x, y, -z + 2z_{\text{vidrio}})
   \label{eq:reflexion}
 \end{equation}
 
-La distancia focal efectiva del sistema depende de la altura del vidrio
-sobre la pantalla $h$ y del ángulo de inclinación $\theta = 45^\circ$:
+La distancia focal efectiva del sistema depende de la altura del
+vidrio sobre la pantalla $h$ y del ángulo de inclinación
+$\theta = 45^\circ$:
 
 \begin{equation}
   d_{\text{focal}} = h \cdot \tan\theta = h
@@ -187,181 +203,113 @@ isótropo a grandes escalas. Bajo esta hipótesis, la métrica del
 espacio-tiempo adopta la forma FLRW~\cite{ryden2017}:
 
 \begin{equation}
-  \boxed{
-  ds^2 = -c^2\,dt^2 + a^2(t)\left[
-    \frac{dr^2}{1 - kr^2} + r^2\left(d\theta^2 + \sin^2\theta\,d\varphi^2\right)
+  ds^2 = -c^2 dt^2 + a^2(t)\left[
+    \frac{dr^2}{1-kr^2} + r^2\left(d\theta^2 + \sin^2\theta\, d\varphi^2\right)
   \right]
-  }
   \label{eq:flrw}
 \end{equation}
 
-donde:
-\begin{itemize}
-  \item $a(t)$ es el \textbf{factor de escala}, que describe cómo
-        cambia el tamaño del universo con el tiempo.
-  \item $k \in \{-1, 0, +1\}$ es el parámetro de curvatura
-        (hiperbólico, plano, esférico).
-  \item $(r, \theta, \varphi)$ son coordenadas comóviles, que se
-        mueven con el fluido cosmológico.
-\end{itemize}
-
-Las observaciones del fondo cósmico de microondas indican que el
-universo es espacialmente plano ($k \approx 0$) con alta
-precisión~\cite{planck2018}.
+donde $a(t)$ es el \textbf{factor de escala} (con $a(t_0)=1$ hoy),
+$k \in \{-1,0,+1\}$ es la curvatura espacial, y $(r,\theta,\varphi)$
+son coordenadas comóviles. Las observaciones de Planck son
+consistentes con un universo plano, $k=0$~\cite{planck2018}.
 
 \subsection{Coordenadas comóviles y distancia física}
 
-Un concepto central en la visualización es la distinción entre
-coordenada comóvil $\chi$ y distancia física $d$:
+La distancia física entre dos puntos comóviles separados por una
+distancia comóvil $\chi$ es:
 
 \begin{equation}
-  d(t) = a(t) \cdot \chi
-  \label{eq:dist_fisica}
-\end{equation}
-
-Las coordenadas comóviles no cambian con la expansión — son etiquetas
-fijas asignadas a cada galaxia. Lo que cambia es el factor de escala
-$a(t)$, que ``estira'' el espacio entre ellas.
-
-\begin{definicion}[Distancia comóvil]
-La distancia comóvil entre dos puntos es la distancia que tendría
-entre ellos si se eliminara la expansión del universo, es decir,
-si se evaluara con el factor de escala actual $a(t_0) = 1$.
-\end{definicion}
-
-En la simulación, cada galaxia tiene una posición comóvil fija
-$\boldsymbol{\chi}_i$. Su posición física en el instante $t$ es:
-
-\begin{equation}
-  \mathbf{r}_i(t) = a(t)\,\boldsymbol{\chi}_i
+  d_{\text{fis}}(t) = a(t)\, \chi
   \label{eq:pos_fisica}
 \end{equation}
 
+Los objetos no se mueven a través del espacio comóvil: es el espacio
+mismo el que se expande. Esta es la base de la dinámica implementada
+para todos los objetos astronómicos de la simulación cosmológica.
+
 \subsection{La ecuación de Friedmann}
 
-Aplicando las ecuaciones de campo de Einstein a la métrica FLRW con
-un fluido perfecto de densidad $\rho$ y presión $p$, se obtiene la
-\textbf{ecuación de Friedmann}:
+A partir de las ecuaciones de campo de Einstein con un fluido perfecto
+de densidad $\rho$ y presión $p$:
 
 \begin{equation}
-  \boxed{
-  H^2(t) \equiv \left(\frac{\dot{a}}{a}\right)^2
-  = \frac{8\pi G}{3}\rho_{\text{tot}} - \frac{kc^2}{a^2}
-  }
-  \label{eq:friedmann}
+  H^2(t) \equiv \left(\frac{\dot a}{a}\right)^2
+  = \frac{8\pi G}{3}\rho - \frac{kc^2}{a^2} + \frac{\Lambda c^2}{3}
+  \label{eq:friedmann1}
 \end{equation}
 
-donde $H(t)$ es el \textbf{parámetro de Hubble} y $\rho_{\text{tot}}$
-incluye todas las componentes energéticas del universo.
+donde $H(t)$ es el \textbf{parámetro de Hubble} y $\Lambda$ la
+constante cosmológica.
 
 \subsection{Componentes de energía y parámetros de densidad}
 
-El universo estándar ($\Lambda$CDM) contiene cuatro componentes:
+Normalizando respecto a la densidad crítica
+$\rho_c = 3H_0^2/(8\pi G)$, se definen los parámetros de densidad
+$\Omega_i = \rho_{i,0}/\rho_c$ para radiación, materia y energía
+oscura. Cada componente escala de forma distinta con $a$:
+$\rho_r \propto a^{-4}$, $\rho_m \propto a^{-3}$,
+$\rho_\Lambda \propto a^0$. Para un universo plano:
 
 \begin{equation}
-  \rho_{\text{tot}} = \rho_r + \rho_m + \rho_\Lambda
-  \label{eq:densidades}
+  \boxed{\;
+  H(a) = H_0\sqrt{\Omega_r a^{-4} + \Omega_m a^{-3} + \Omega_\Lambda}
+  \;}
+  \label{eq:hubble_a}
 \end{equation}
 
-Cada componente escala diferente con $a(t)$:
-
-\begin{table}[H]
-  \centering
-  \caption{Componentes energéticas del universo $\Lambda$CDM}
-  \begin{tabular}{llcc}
-    \toprule
-    Componente & Símbolo & Escala con $a$ & $\Omega_i$ (Planck 2018) \\
-    \midrule
-    Radiación      & $\rho_r$        & $a^{-4}$ & $9{,}24 \times 10^{-5}$ \\
-    Materia oscura + bariónica & $\rho_m$ & $a^{-3}$ & $0{,}315$ \\
-    Energía oscura ($\Lambda$) & $\rho_\Lambda$ & $a^0$ (constante) & $0{,}685$ \\
-    \bottomrule
-  \end{tabular}
-  \label{tab:componentes}
-\end{table}
-
-Definiendo los parámetros de densidad adimensionales
-$\Omega_i = \rho_i / \rho_c$ con $\rho_c = 3H_0^2/(8\pi G)$,
-la ecuación de Friedmann toma la forma normalizada:
-
-\begin{equation}
-  \frac{H^2(a)}{H_0^2} = \frac{\Omega_r}{a^4}
-                        + \frac{\Omega_m}{a^3}
-                        + \frac{\Omega_k}{a^2}
-                        + \Omega_\Lambda
-  \label{eq:friedmann_norm}
-\end{equation}
-
-con $\Omega_k = 1 - \Omega_r - \Omega_m - \Omega_\Lambda \approx 0$.
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro & Valor & Significado \\
+\midrule
+$H_0$ & $67.4$ km s$^{-1}$ Mpc$^{-1}$ & Constante de Hubble actual \\
+$\Omega_m$ & $0.315$ & Densidad de materia \\
+$\Omega_r$ & $9.24\times10^{-5}$ & Densidad de radiación \\
+$\Omega_\Lambda$ & $0.685$ & Densidad de energía oscura \\
+\bottomrule
+\end{tabular}
+\end{center}
 
 \subsection{Solución numérica de $a(t)$}
 
-La ecuación diferencial que gobierna $a(t)$ se obtiene de
-(\ref{eq:friedmann_norm}):
+De $H = \dot a/a$ y (\ref{eq:hubble_a}) se obtiene la EDO:
 
 \begin{equation}
-  \dot{a} = H_0\,a\,\sqrt{\frac{\Omega_r}{a^4}
-            + \frac{\Omega_m}{a^3} + \Omega_\Lambda}
-  \label{eq:ode_a}
+  \frac{da}{dt} = a\, H_0\sqrt{\Omega_r a^{-4} + \Omega_m a^{-3} + \Omega_\Lambda}
+  \label{eq:edo_a}
 \end{equation}
 
-Esta ODE se resuelve numéricamente mediante el método
-Runge-Kutta de orden 4-5 (RK45) con tolerancias relativas
-$\varepsilon_{\text{rel}} = 10^{-9}$ y absolutas
-$\varepsilon_{\text{abs}} = 10^{-11}$, usando la implementación
-\texttt{scipy.integrate.solve\_ivp}.
-
-Los parámetros iniciales son $a(t_{\min}) = 10^{-3}$ con
-$t_{\min} = 0{,}5\,\text{Gyr}$, y la solución se normaliza
-de modo que $a(t_0) = 1$ con $t_0 = 13{,}8\,\text{Gyr}$.
+integrada numéricamente mediante Runge-Kutta 4(5)
+(\texttt{scipy.integrate.solve\_ivp}, método \texttt{RK45}), partiendo
+de $a(t_{\min}) = a_0 \ll 1$ y normalizando $a(t_0=13.8\,\text{Gyr})=1$.
 
 \subsection{El parámetro de Hubble y la ley de Hubble-Lemaître}
 
-El parámetro de Hubble actual tiene el valor~\cite{planck2018}:
-
-\begin{equation}
-  H_0 = 67{,}4 \pm 0{,}5 \;\text{km\,s}^{-1}\text{Mpc}^{-1}
-  \label{eq:H0}
-\end{equation}
-
-La \textbf{ley de Hubble-Lemaître} establece que la velocidad de
-recesión de una galaxia es proporcional a su distancia:
-
-\begin{equation}
-  v = H(t)\,d
-  \label{eq:hubble_law}
-\end{equation}
+La velocidad de recesión de un objeto comóvil a distancia física $d$
+es $v = H(t)\,d$ (\textbf{ley de Hubble-Lemaître}): objetos más
+lejanos se alejan más rápido.
 
 \subsection{El horizonte de Hubble}
 
-El \textbf{horizonte de Hubble} $d_H(t)$ define la distancia a la que
-los objetos se alejan a la velocidad de la luz:
-
-\begin{equation}
-  d_H(t) = \frac{c}{H(t)}
-  \label{eq:horizonte}
-\end{equation}
-
-Objetos más allá del horizonte de Hubble se alejan superluminalmente
-(lo que no viola la relatividad especial, pues es el espacio mismo el
-que se expande). En la visualización, el horizonte de Hubble se
-representa como una esfera que crece con $a(t)$.
+El \textbf{horizonte de Hubble} es la distancia a la cual la velocidad
+de recesión iguala la velocidad de la luz: $d_H(t) = c/H(t)$. En la
+visualización se representa como una circunferencia cuyo radio crece
+proporcionalmente a $a(t)$.
 
 \subsection{Corrimiento al rojo cosmológico}
 
-La expansión del universo produce un corrimiento al rojo de la luz
-emitida por objetos distantes. Para un fotón emitido cuando
-$a = a_e$ y recibido cuando $a = a_r = 1$:
+La luz emitida en $t_{\text{emis}}$ y observada en $t_{\text{obs}}$
+sufre un corrimiento al rojo:
 
 \begin{equation}
-  1 + z = \frac{a_r}{a_e} = \frac{1}{a_e}
+  1+z = \frac{a(t_{\text{obs}})}{a(t_{\text{emis}})}
   \label{eq:redshift}
 \end{equation}
 
-En la visualización, el corrimiento al rojo se codifica mediante
-el color de cada objeto: objetos cercanos (bajo $z$) se representan
-en azul-blanco, mientras que objetos lejanos (alto $z$) se muestran
-en tonos rojos-anaranjados.
+En la visualización, este efecto se representa coloreando cada objeto
+según su distancia comóvil al observador: azul/blanco para objetos
+cercanos, rojo/naranja para objetos lejanos.
 
 % =====================================================================
 \section{Clasificación de Objetos Astronómicos}
@@ -386,106 +334,53 @@ tipos de objetos con características visuales diferenciadas:
   \label{tab:objetos}
 \end{table}
 
-Las estrellas reciben además un \textbf{halo de brillo} (glow) generado
-mediante un degradado radial horneado en el canal RGB y compuesto sobre
-la escena con mezcla aditiva (\texttt{BLEND\_ADD}), lo que simula la
-dispersión de luz característica de fuentes puntuales muy brillantes.
-Las galaxias emplean el mismo mecanismo pero con un degradado
-\textbf{elíptico}, orientado con un ángulo aleatorio fijo por galaxia,
-para sugerir la forma de un disco galáctico visto en perspectiva.
-
-Todos los objetos siguen la misma dinámica comóvil descrita por
-(\ref{eq:pos_fisica}), diferenciándose únicamente en su representación
-visual. Las galaxias se distribuyen preferentemente a mayor distancia
-comóvil ($\chi \gtrsim 0.35$), reforzando la sensación de profundidad
-al ubicarse como fondo difuso detrás de las estrellas y planetas.
+Las estrellas reciben un \textbf{halo de brillo} (glow) generado
+mediante un degradado radial horneado en el canal RGB y compuesto
+sobre la escena con mezcla aditiva (\texttt{BLEND\_ADD}). Las galaxias
+emplean el mismo mecanismo con un degradado \textbf{elíptico} orientado
+aleatoriamente, sugiriendo un disco galáctico visto en perspectiva.
+Las galaxias se distribuyen preferentemente a mayor distancia comóvil
+($\chi \gtrsim 0.35$), reforzando la sensación de profundidad.
 
 % =====================================================================
 \section{Modelo Atómico: Orbitales del Hidrógeno}
 \label{sec:atomico}
 % =====================================================================
 
-El segundo modelo implementado representa los \textbf{orbitales del
-átomo de hidrógeno}, es decir, las soluciones estacionarias de la
-ecuación de Schrödinger para un electrón en un potencial coulombiano.
-A diferencia del modelo cosmológico, aquí el objeto visualizado no es
-un conjunto de cuerpos discretos, sino una \textbf{densidad de
-probabilidad continua} $|\psi_{nlm}(\mathbf{r})|^2$, representada
-mediante una nube de puntos muestreados de dicha distribución
-(\emph{dot-density plot}).
+El segundo modelo representa los \textbf{orbitales del átomo de
+hidrógeno}: soluciones estacionarias de la ecuación de Schrödinger
+para un electrón en un potencial coulombiano, visualizadas mediante
+una nube de puntos muestreados de $|\psi_{nlm}(\mathbf r)|^2$.
 
 \subsection{La ecuación de Schrödinger y separación de variables}
 
-La función de onda estacionaria $\psi(\mathbf{r})$ de un electrón en
-el potencial coulombiano de un protón satisface la ecuación de
-Schrödinger independiente del tiempo~\cite{griffiths2018}:
-
 \begin{equation}
   \boxed{
-  -\frac{\hbar^2}{2m_e}\nabla^2\psi - \frac{e^2}{4\pi\varepsilon_0 r}\psi
-  = E\,\psi
+  -\frac{\hbar^2}{2m_e}\nabla^2\psi - \frac{e^2}{4\pi\varepsilon_0 r}\psi = E\,\psi
   }
   \label{eq:schrodinger_h}
 \end{equation}
 
-Debido a la simetría esférica del potencial, la ecuación se separa en
-coordenadas esféricas $(r,\theta,\varphi)$ mediante el ansatz:
+Por la simetría esférica del potencial, se separa en coordenadas
+esféricas:
 
 \begin{equation}
-  \psi_{nlm}(r,\theta,\varphi) = R_{nl}(r)\,Y_l^m(\theta,\varphi)
+  \psi_{nlm}(r,\theta,\varphi) = R_{nl}(r)\, Y_l^m(\theta,\varphi)
   \label{eq:separacion}
 \end{equation}
 
-donde $R_{nl}(r)$ es la \textbf{función radial} y $Y_l^m(\theta,\varphi)$
-es un \textbf{armónico esférico}, autofunción simultánea del momento
-angular $\hat{L}^2$ y de su componente $\hat{L}_z$. Esta separación da
-lugar a una ecuación radial y una ecuación angular independientes,
-acopladas únicamente a través del número cuántico $l$.
-
 \subsection{Solución radial y polinomios de Laguerre}
 
-La parte radial normalizada, en unidades del radio de Bohr $a_0=1$, es:
-
 \begin{equation}
-  R_{nl}(r) = \sqrt{
-    \left(\frac{2}{n}\right)^3
-    \frac{(n-l-1)!}{2n\left[(n+l)!\right]^3}
-  }\;
-  e^{-\rho/2}\,\rho^{\,l}\,L_{n-l-1}^{2l+1}(\rho),
-  \qquad \rho \equiv \frac{2r}{n}
+  R_{nl}(r) = \sqrt{\left(\frac{2}{n}\right)^3 \frac{(n-l-1)!}{2n[(n+l)!]^3}}\,
+  e^{-\rho/2}\rho^l L_{n-l-1}^{2l+1}(\rho), \qquad \rho \equiv \frac{2r}{n}
   \label{eq:radial}
 \end{equation}
 
-donde $L_{n-l-1}^{2l+1}$ es un \textbf{polinomio asociado de Laguerre}.
-La cuantización surge de exigir que $R_{nl}(r)\to0$ cuando
-$r\to\infty$, lo cual solo es posible si:
-
-\begin{equation}
-  n = 1, 2, 3, \dots \qquad\qquad l = 0, 1, \dots, n-1
-  \label{eq:cuantizacion}
-\end{equation}
-
-El número de \textbf{nodos radiales} (ceros de $R_{nl}$ para $r>0$,
-distintos del origen) es $n-l-1$. Esta es la razón por la que el
-orbital $2s$ ($n=2,\,l=0$) presenta una capa nodal que separa una
-región interna de una externa, mientras que $1s$ ($n=1,\,l=0$) no
-tiene nodos.
-
-La función \texttt{radial\_wavefunction(n, l, r)} en
-\texttt{atomic\_realtime.py} implementa directamente la
-ecuación~(\ref{eq:radial}) usando
-\texttt{scipy.special.genlaguerre}.
+con cuantización $n=1,2,3,\ldots$, $l=0,\ldots,n-1$. El número de
+nodos radiales es $n-l-1$.
 
 \subsection{Parte angular: armónicos esféricos reales}
-
-Los armónicos esféricos $Y_l^m$ son, en general, funciones complejas.
-Para obtener las formas \textbf{reales} familiares de los libros de
-texto —los lóbulos de los orbitales $p_x$, $p_y$, $p_z$ y las formas de
-trébol de los orbitales $d$— se utilizan combinaciones lineales reales
-de los $Y_l^m$ con igual $|m|$. La Tabla~\ref{tab:angulares} resume las
-funciones angulares reales $\Theta_{l,\text{tipo}}(\theta,\varphi)$
-implementadas (salvo factores de normalización, irrelevantes para el
-muestreo descrito en la sección~\ref{sec:muestreo}).
 
 \begin{table}[H]
   \centering
@@ -508,25 +403,15 @@ muestreo descrito en la sección~\ref{sec:muestreo}).
   \label{tab:angulares}
 \end{table}
 
-El \textbf{signo} de $\Theta(\theta,\varphi)$ define los
-\textbf{lóbulos de fase} del orbital: regiones donde la función de onda
-real es positiva o negativa. Esta alternancia de signo —sin efecto
-sobre $|\psi|^2$ en un punto dado, pero crucial para la formación de
-enlaces químicos por interferencia— se codifica visualmente mediante
-color (sección~\ref{sec:muestreo}).
+El \textbf{signo} de $\Theta$ define los lóbulos de fase del orbital,
+codificados visualmente mediante color.
 
 \subsection{Números cuánticos, energía y notación espectroscópica}
-
-La energía de un estado $\psi_{nlm}$ depende únicamente del número
-cuántico principal $n$ (degeneración accidental del átomo de
-hidrógeno), y viene dada por la fórmula de Bohr:
 
 \begin{equation}
   E_n = -\frac{13.6\ \text{eV}}{n^2}
   \label{eq:energia_bohr}
 \end{equation}
-
-Los tres números cuánticos y su rango de valores son:
 
 \begin{table}[H]
   \centering
@@ -536,85 +421,43 @@ Los tres números cuánticos y su rango de valores son:
     Símbolo & Nombre & Rango & Determina \\
     \midrule
     $n$ & Principal & $1, 2, 3, \dots$ & Energía $E_n$, tamaño del orbital \\
-    $l$ & Azimutal (momento angular) & $0,\dots,n-1$ & Forma angular, $|m|\le l$ \\
+    $l$ & Azimutal & $0,\dots,n-1$ & Forma angular, $|m|\le l$ \\
     $m$ & Magnético & $-l,\dots,+l$ & Orientación espacial \\
     \bottomrule
   \end{tabular}
   \label{tab:numeros_cuanticos}
 \end{table}
 
-La notación espectroscópica asocia letras a los valores de $l$:
-$l=0\to s$, $l=1\to p$, $l=2\to d$, $l=3\to f$, de modo que un estado
-$n=2,\,l=1$ se denota $2p$.
-
 \subsection{Densidad de probabilidad y muestreo separable}
 \label{sec:muestreo}
 
-La probabilidad de encontrar al electrón en un elemento de volumen
-$dV = r^2\sin\theta\,dr\,d\theta\,d\varphi$ es
-$|\psi_{nlm}|^2\,dV$. Gracias a la separación~(\ref{eq:separacion}),
-esta probabilidad factoriza exactamente en un término radial y uno
-angular:
+Gracias a la separación~(\ref{eq:separacion}):
 
 \begin{equation}
   |\psi_{nlm}|^2\,dV
   = \underbrace{\left[R_{nl}(r)^2\,r^2\,dr\right]}_{P_r(r)\,dr}
   \cdot
-  \underbrace{\left[\Theta(\theta,\varphi)^2\sin\theta\,d\theta\,d\varphi\right]}_{P_\Omega(\theta,\varphi)\,d\theta\,d\varphi}
+  \underbrace{\left[\Theta(\theta,\varphi)^2\sin\theta\,d\theta\,d\varphi\right]}_{P_\Omega\,d\theta\,d\varphi}
   \label{eq:factorizacion}
 \end{equation}
 
-Esta factorización es la clave del método de visualización: el radio
-$r$ y la dirección angular $(\theta,\varphi)$ de cada punto muestreado
-son \textbf{variables aleatorias independientes}, cada una con su
-propia distribución de probabilidad $P_r(r)$ y $P_\Omega(\theta,\varphi)$.
-El algoritmo implementado en \texttt{generar\_nube\_puntos()} es:
-
-\begin{enumerate}
-  \item \textbf{Muestreo radial:} evaluar $P_r(r)\propto R_{nl}(r)^2 r^2$
-        sobre una grilla de $800$ puntos y muestrear $N=6000$ radios
-        $r_i$ mediante \texttt{numpy.random.choice} ponderado por
-        $P_r$.
-  \item \textbf{Muestreo angular:} evaluar
-        $P_\Omega(\theta,\varphi)\propto\Theta(\theta,\varphi)^2\sin\theta$
-        sobre una grilla $90\times180$ en $(\theta,\varphi)$ y
-        muestrear $N$ pares angulares $(\theta_i,\varphi_i)$ del mismo
-        modo.
-  \item \textbf{Signo / fase:} registrar
-        $s_i=\operatorname{sign}\,\Theta(\theta_i,\varphi_i)$ para
-        cada punto, usado posteriormente para el color.
-  \item \textbf{Combinación:} convertir a cartesianas,
-        $(x_i,y_i,z_i) = r_i(\sin\theta_i\cos\varphi_i,\,
-        \sin\theta_i\sin\varphi_i,\,\cos\theta_i)$.
-  \item \textbf{Normalización de escala:} dividir las posiciones por
-        $r_{\text{ref}}$, el radio que contiene el $90\%$ de la
-        probabilidad radial acumulada, de modo que todos los orbitales
-        —independientemente de $n$— ocupen una región visual de
-        tamaño comparable.
-\end{enumerate}
+de modo que $r$ y $(\theta,\varphi)$ son variables aleatorias
+\textbf{independientes}, cada una muestreada de su propia distribución
+marginal mediante \texttt{numpy.random.choice} ponderado. Las
+posiciones se normalizan por $r_{\text{ref}}$ (percentil 90\% de
+probabilidad radial acumulada) para que todos los orbitales ocupen
+una región visual comparable.
 
 \begin{observacion}
-La independencia estadística de $r$ y $(\theta,\varphi)$ en
-(\ref{eq:factorizacion}) es exclusiva del átomo de hidrógeno (potencial
-central exactamente coulombiano) y simplifica enormemente el muestreo:
-no es necesario evaluar $|\psi|^2$ sobre una grilla 3D completa ni
-realizar rechazo (\emph{rejection sampling}) en tres dimensiones.
+La independencia estadística de $r$ y $(\theta,\varphi)$ es exclusiva
+de potenciales centrales exactamente coulombianos y simplifica
+enormemente el muestreo: no se requiere evaluar $|\psi|^2$ sobre una
+grilla 3D completa ni aplicar rechazo en tres dimensiones. Esta
+ventaja \textbf{no} está disponible para los sistemas de la
+Sección~\ref{sec:onda3d}, que requieren muestreo MCMC.
 \end{observacion}
 
-Cada punto se renderiza con un color base que depende de su signo
-$s_i$: \textcolor[RGB]{110,200,255}{cian} para $s_i=+1$ (fase positiva)
-y \textcolor[RGB]{255,150,90}{naranja} para $s_i=-1$ (fase negativa),
-modulado por un factor de brillo
-$0.55 + 0.45\,(1 - r_i/r_{\text{ref}})$ que ilumina ligeramente las
-regiones cercanas al núcleo. Para los orbitales $s$ ($l=0$),
-$\Theta\equiv1$ es siempre positivo, por lo que toda la nube se muestra
-en cian.
-
 \subsection{Secuencia de orbitales en la demostración}
-
-Para mostrar la evolución de la forma orbital con $n$ y $l$ dentro de
-un ciclo de $60\,\text{s}$ (igual duración que el modelo cosmológico),
-se recorren seis orbitales, $10\,\text{s}$ cada uno:
 
 \begin{table}[H]
   \centering
@@ -634,10 +477,218 @@ se recorren seis orbitales, $10\,\text{s}$ cada uno:
   \label{tab:secuencia_orbitales}
 \end{table}
 
-El núcleo (protón) se representa como un punto brillante con halo en
-el origen, reutilizando el mismo mecanismo de degradado radial y
-mezcla aditiva \texttt{BLEND\_ADD} descrito para las estrellas del
-modelo cosmológico (Tabla~\ref{tab:objetos}).
+% =====================================================================
+\section{Funciones de Onda 1D: Paquetes y Evolución Temporal}
+\label{sec:onda1d}
+% =====================================================================
+
+A diferencia de los orbitales atómicos —estados \textbf{estacionarios}
+donde $|\psi|^2$ no depende del tiempo— este modelo visualiza la
+evolución temporal explícita de \textbf{superposiciones} de
+autoestados, lo que permite observar fenómenos genuinamente dinámicos:
+oscilación de paquetes de onda y efecto túnel.
+
+\subsection{Superposición de autoestados}
+
+Dado un conjunto de autoestados $\{\psi_n(x)\}$ del Hamiltoniano
+$\hat H$ con energías $E_n$, la solución general de la ecuación de
+Schrödinger dependiente del tiempo es:
+
+\begin{equation}
+  \Psi(x,t) = \sum_n c_n\, \psi_n(x)\, e^{-iE_n t/\hbar}
+  \label{eq:superposicion}
+\end{equation}
+
+con $\sum_n |c_n|^2 = 1$. A diferencia de un autoestado puro, cuya
+densidad $|\psi_n(x)|^2$ es estática, una superposición de dos o más
+niveles produce una densidad de probabilidad $|\Psi(x,t)|^2$ que
+\textbf{oscila en el tiempo} con frecuencias dadas por las diferencias
+de energía $\Delta E_{nm} = E_n - E_m$ entre los términos de la suma.
+
+\subsection{Sistema 1: Pozo infinito de potencial}
+
+Los autoestados normalizados de una partícula confinada en
+$x \in [0,L]$ son:
+
+\begin{equation}
+  \psi_n(x) = \sqrt{\frac{2}{L}}\sin\!\left(\frac{n\pi x}{L}\right),
+  \qquad
+  E_n = \frac{n^2\pi^2\hbar^2}{2mL^2}, \qquad n=1,2,3,\ldots
+  \label{eq:pozo_inf}
+\end{equation}
+
+El paquete visualizado es la superposición equiponderada
+$c_1=c_2=1/\sqrt2$ de los dos primeros niveles, cuya densidad
+$|\Psi(x,t)|^2$ oscila de un lado a otro del pozo con periodo
+$T = 2\pi\hbar/(E_2-E_1)$, ilustrando el límite hacia el comportamiento
+clásico de "rebote entre paredes".
+
+\subsection{Sistema 2: Oscilador armónico — estados coherentes}
+
+Los autoestados del oscilador armónico, expresados mediante
+polinomios de Hermite $H_n$, son:
+
+\begin{equation}
+  \psi_n(x) = \frac{1}{\sqrt{2^n n!}}
+  \left(\frac{m\omega}{\pi\hbar}\right)^{1/4}
+  e^{-m\omega x^2/2\hbar}\, H_n\!\left(\sqrt{\frac{m\omega}{\hbar}}\,x\right),
+  \qquad E_n = \left(n+\tfrac12\right)\hbar\omega
+  \label{eq:osc_1d}
+\end{equation}
+
+Un \textbf{estado coherente} $|\alpha\rangle$ es la superposición
+particular:
+
+\begin{equation}
+  c_n = e^{-|\alpha|^2/2}\,\frac{\alpha^n}{\sqrt{n!}}
+  \label{eq:estado_coherente}
+\end{equation}
+
+que minimiza el principio de incertidumbre de Heisenberg y cuyo valor
+esperado $\langle x\rangle(t)$ oscila exactamente como un oscilador
+\textbf{clásico}, $\langle x\rangle(t) \propto \cos(\omega t)$. Se
+implementa con $\alpha = 2{,}5$, truncando la suma a los primeros 14
+términos (suficiente para que $\sum|c_n|^2 \approx 0{,}97$).
+
+\subsection{Sistema 3: Doble pozo de potencial — efecto túnel}
+
+Para el potencial de doble pozo $V(x) = -ax^2+bx^4$, sin solución
+analítica cerrada, los autoestados se obtienen discretizando la
+ecuación de Schrödinger por \textbf{diferencias finitas}: el operador
+$-\frac{\hbar^2}{2m}\frac{d^2}{dx^2}+V(x)$ se aproxima sobre una
+grilla de paso $\Delta x$ como una matriz \textbf{tridiagonal}, cuyos
+autovalores y autovectores se obtienen con
+\texttt{scipy.linalg.eigh\_tridiagonal}.
+
+Para $a=0{,}5$ y $b=0{,}06$, los dos primeros niveles forman un
+\textbf{doblete} casi degenerado, $E_1-E_0 \approx 0{,}103$ (en
+unidades naturales), con autofunciones simétrica y antisimétrica
+respecto al origen. La superposición equiponderada de ambos produce
+oscilación entre los dos mínimos del potencial —el \textbf{efecto
+túnel}— con periodo de oscilación inversamente proporcional al
+\textit{splitting} de energía $\Delta E_{10}$: cuanto más alta y ancha
+la barrera entre los pozos, menor el splitting y más lento el túnel.
+
+\subsection{Visualización: cinta compleja y color por fase}
+
+Como $\Psi(x,t)$ es en general compleja, se representa como una cinta
+3D:
+
+\begin{equation}
+  (x,\; \operatorname{Re}\Psi(x,t),\; \operatorname{Im}\Psi(x,t))
+  \label{eq:cinta_compleja}
+\end{equation}
+
+cuyo color se determina por la \textbf{fase local}
+$\arg\Psi(x,t)/2\pi$ mapeada a tono (hue) en el espacio HSV, y cuyo
+brillo es proporcional a la densidad local $|\Psi(x,t)|^2$. Bajo la
+cinta se dibuja el paisaje de densidad $|\Psi(x,t)|^2$, el potencial
+$V(x)$ de referencia, y un marcador para el valor esperado de la
+posición:
+
+\begin{equation}
+  \langle x\rangle(t) = \int x\, |\Psi(x,t)|^2\, dx
+  \label{eq:valor_esperado}
+\end{equation}
+
+% =====================================================================
+\section{Funciones de Onda 3D: Muestreo por Cadenas de Markov}
+\label{sec:onda3d}
+% =====================================================================
+
+El cuarto modelo generaliza el Sistema de la Sección~\ref{sec:onda1d}
+a tres dimensiones, $\Psi(x,y,z,t)$, para potenciales que en general
+\textbf{no} son separables de forma tan simple como el caso
+coulombiano (Sección~\ref{sec:muestreo}), requiriendo un método de
+muestreo distinto: cadenas de Markov.
+
+\subsection{Pozo esférico infinito}
+
+Los autoestados de una partícula confinada en una esfera de radio $R$
+con $V=\infty$ para $r>R$ son:
+
+\begin{equation}
+  \psi_{nlm}(r,\theta,\varphi) = A\; j_l\!\left(\frac{z_{nl}}{R}\,r\right)
+  Y_l^m(\theta,\varphi)
+  \label{eq:pozo_esferico}
+\end{equation}
+
+donde $j_l$ es la \textbf{función esférica de Bessel} de orden $l$ y
+$z_{nl}$ es su $n$-ésimo cero positivo (calculado numéricamente por
+búsqueda de raíz, \texttt{scipy.optimize.brentq}, con resultados
+cacheados para evitar recomputar la búsqueda en cada evaluación). La
+energía es:
+
+\begin{equation}
+  E_{nl} = \frac{\hbar^2 z_{nl}^2}{2mR^2}
+  \label{eq:energia_pozo_esferico}
+\end{equation}
+
+El sistema visualizado es la superposición de los estados
+$(n,l,m)=(1,0,0)$ y $(1,1,0)$, cuya densidad oscila entre una forma
+esférica pura y una forma dipolar, con periodo
+$T=2\pi\hbar/(E_{11}-E_{10})$.
+
+\subsection{Oscilador armónico 3D}
+
+Para un oscilador isótropo, el Hamiltoniano se separa en tres
+osciladores 1D independientes:
+
+\begin{equation}
+  \psi_{n_x n_y n_z}(x,y,z) = \psi_{n_x}(x)\,\psi_{n_y}(y)\,\psi_{n_z}(z),
+  \qquad
+  E_{n_x n_y n_z} = \left(n_x+n_y+n_z+\tfrac32\right)\hbar\omega
+  \label{eq:osc_3d}
+\end{equation}
+
+con $\psi_n$ dado por~(\ref{eq:osc_1d}). El modo $(1,0,0)$ —dos
+lóbulos a lo largo del eje $X$, análogo al orbital $2p_x$— se muestra
+de forma estática salvo por la rotación de cámara.
+
+\subsection{Paquete anisótropo: rotación del centroide}
+
+Introduciendo una anisotropía entre las frecuencias propias,
+$\omega_x \neq \omega_y$, los modos $(1,0,0)$ y $(0,1,0)$ —degenerados
+en el caso isótropo— adquieren energías distintas,
+$\Delta E = \hbar|\omega_x-\omega_y|$. La superposición de ambos
+produce un paquete cuyo centroide $(\langle x\rangle,\langle y\rangle)$
+\textbf{rota} en el plano $XY$ con periodo $T=2\pi/\Delta E$. Para la
+demostración se usa $\omega_x=1{,}0$, $\omega_y=1{,}6$, dando
+$T\approx 10{,}5$ (unidades naturales), visible en su totalidad dentro
+de los 20 s asignados a cada sistema.
+
+\subsection{Muestreo de Metropolis--Hastings}
+
+Para una densidad de probabilidad arbitraria $|\Psi(x,y,z)|^2$ sin
+factorización conocida, se emplea el algoritmo de
+\textbf{Metropolis--Hastings}~\cite{griffiths2018}: partiendo de una
+posición $\mathbf r_0$, en cada paso se propone
+$\mathbf r' = \mathbf r + \boldsymbol\delta$ con $\boldsymbol\delta$
+muestreado de una gaussiana isótropa, y se acepta el movimiento con
+probabilidad:
+
+\begin{equation}
+  P_{\text{aceptar}} = \min\!\left(1,\; \frac{|\Psi(\mathbf r')|^2}{|\Psi(\mathbf r)|^2}\right)
+  \label{eq:metropolis}
+\end{equation}
+
+Tras un periodo de \textbf{quemado} (\textit{burn-in}, 400 pasos en la
+primera evaluación de cada sistema) para que la cadena converja a la
+distribución estacionaria, se registran muestras cada \texttt{N\_THIN}
+pasos para reducir la autocorrelación entre puntos consecutivos.
+
+\subsection{Optimización: precómputo de secuencias temporales}
+
+Ejecutar Metropolis--Hastings en cada cuadro de animación resulta
+computacionalmente prohibitivo (verificado experimentalmente: $<5$
+fps). En su lugar, se \textbf{precalcula} una secuencia de 12 nubes de
+3000 puntos cada una, distribuidas uniformemente sobre un periodo de
+oscilación completo, para cada uno de los tres sistemas. Durante la
+animación, cada cuadro selecciona la nube precalculada con el tiempo
+más cercano al tiempo de simulación actual. Esta estrategia eleva el
+rendimiento de funciones de onda 3D de $\sim$3 fps a $\sim$40 fps,
+al costo de un precómputo inicial de aproximadamente 20 s al iniciar
+el programa.
 
 % =====================================================================
 \section{Arquitectura del Sistema de Visualización}
@@ -646,46 +697,32 @@ modelo cosmológico (Tabla~\ref{tab:objetos}).
 \subsection{Pipeline de renderizado}
 
 El pipeline de renderizado en tiempo real es \textbf{compartido} por
-los dos modelos (cosmológico y atómico), que reutilizan la misma
-infraestructura de composición Pepper's Ghost, proyección y
-antialiasing. En cada frame se ejecutan los siguientes pasos:
+los cuatro modelos, que reutilizan la misma infraestructura de
+composición Pepper's Ghost, proyección y antialiasing. En cada frame:
 
 \begin{enumerate}
   \item \textbf{Actualización temporal:} avanzar $t_{\text{sim}}$
-        según la velocidad de simulación $v_s$. En el modelo
-        cosmológico:
-        \[
-          t_{\text{sim}} \leftarrow t_{\text{sim}}
-          + \frac{T_{\text{max}} - T_{\text{min}}}{T_{\text{ciclo}}}
-          \cdot \Delta t_{\text{real}} \cdot v_s
-        \]
-        En el modelo atómico, $t_{\text{sim}}$ avanza linealmente
-        ($\Delta t_{\text{real}}\cdot v_s$) y determina además, junto
-        con $T_{\text{orbital}}=10\,\text{s}$, qué orbital de la
-        Tabla~\ref{tab:secuencia_orbitales} se muestra.
-  \item \textbf{Posiciones del modelo} (paso específico de cada
-        modelo): en el cosmológico, interpolar $a(t_{\text{sim}})$ y
-        calcular $\mathbf{r}_i = a(t)\,\boldsymbol{\chi}_i$
-        (ec.~\ref{eq:pos_fisica}); en el atómico, seleccionar la nube
-        de puntos precalculada del orbital activo
-        (sección~\ref{sec:muestreo}).
+        según la velocidad de simulación $v_s$.
+  \item \textbf{Estado del modelo} (paso específico de cada modelo):
+        cosmológico, interpolar $a(t_{\text{sim}})$
+        (ec.~\ref{eq:pos_fisica}); atómico, seleccionar la nube
+        precalculada del orbital activo; ondas 1D, evaluar
+        $\Psi(x,t)$ mediante~(\ref{eq:superposicion}); ondas 3D,
+        seleccionar la nube MCMC precalculada más cercana en tiempo.
   \item \textbf{Rotación y proyección 3D$\to$2D:} aplicar rotación
-        continua en $Y$ (y, en el modelo atómico, una inclinación fija
-        adicional en $X$ de $22^\circ$ para mejorar la percepción de
-        profundidad de los lóbulos) y proyectar mediante
+        continua en $Y$ (y, en los modelos atómico y 3D, una
+        inclinación fija adicional en $X$) y proyectar mediante
         (\ref{eq:perspectiva}).
   \item \textbf{Sobremuestreo y composición Pepper's Ghost:} dibujar
-        sobre una superficie interna ampliada (sección~\ref{sec:antialiasing}),
-        reescalar y centrar sobre fondo negro.
+        sobre una superficie interna ampliada
+        (sección~\ref{sec:antialiasing}), reescalar y centrar sobre
+        fondo negro.
   \item \textbf{HUD:} superponer información de tiempo y estado
-        ($a(t)$ en el modelo cosmológico; números cuánticos y energía
-        $E_n$ en el atómico) junto con los controles disponibles.
+        específica de cada modelo, junto con los controles
+        disponibles.
 \end{enumerate}
 
 \subsection{Proyección perspectiva}
-
-Para proyectar las posiciones 3D $(x, y, z)$ a píxeles 2D
-$(p_x, p_y)$:
 
 \begin{equation}
   p_x = c_x + \frac{x \cdot s \cdot d_f}{z + d_f}, \qquad
@@ -693,19 +730,30 @@ $(p_x, p_y)$:
   \label{eq:perspectiva}
 \end{equation}
 
-donde $(c_x, c_y)$ es el centro de la pantalla, $s$ es la escala
-en píxeles y $d_f = 2{,}5$ es la distancia focal normalizada. En el
-modelo atómico, antes de aplicar~(\ref{eq:perspectiva}) se realiza una
-rotación adicional fija de $22^\circ$ alrededor del eje $X$, de modo que
-los lóbulos de los orbitales $p$ y $d$ —que de otro modo podrían
-proyectarse de canto y perder su forma característica— se observen
-desde un ángulo tridimensional consistente.
+donde $(c_x, c_y)$ es el centro de pantalla, $s$ la escala en píxeles
+y $d_f=2{,}5$ la distancia focal normalizada. En los modelos atómico y
+de ondas 3D, antes de aplicar~(\ref{eq:perspectiva}) se realiza una
+rotación adicional fija en $X$ ($22^\circ$ y $20^\circ$
+respectivamente) para que las formas tridimensionales —lóbulos de
+orbitales, nubes de paquetes 3D— se observen desde un ángulo
+consistente en lugar de proyectarse de canto.
 
-\subsection{Parámetros de simulación: modelo cosmológico}
+\subsection{Antialiasing por sobremuestreo}
+\label{sec:antialiasing}
+
+Los cuatro modelos renderizan primero sobre una superficie interna de
+resolución $1{,}75\times$ mayor que la pantalla de salida, reescalada
+mediante interpolación bilineal (\texttt{pygame.transform.smoothscale}).
+Esto suaviza bordes de círculos, halos, discos galácticos, puntos de
+nubes atómicas y cintas de funciones de onda, sin requerir
+antialiasing por hardware —crítico en una proyección Pepper's Ghost,
+donde el vidrio amplifica cualquier artefacto.
+
+\subsection{Parámetros de simulación por modelo}
 
 \begin{table}[H]
   \centering
-  \caption{Parámetros de la simulación}
+  \caption{Parámetros del modelo cosmológico}
   \begin{tabular}{lll}
     \toprule
     Parámetro & Valor & Descripción \\
@@ -714,55 +762,67 @@ desde un ángulo tridimensional consistente.
     $N_{\text{planetas}}$    & 260      & Cuerpos medianos de colores variados \\
     $N_{\text{asteroides}}$  & 1100     & Objetos diminutos (polvo cósmico) \\
     $N_{\text{galaxias}}$    & 18       & Discos elípticos difusos de fondo \\
-    $N_{\text{objetos}}$     & 1438     & Total de objetos simulados \\
-    $T_{\text{min}}$     & 0,5 Gyr  & Tiempo inicial (post Big Bang) \\
-    $T_{\text{max}}$     & 30 Gyr   & Tiempo final de simulación \\
     $T_{\text{ciclo}}$   & 60 s     & Duración real de un ciclo \\
-    $f_{\text{target}}$  & 60 fps   & Fotogramas por segundo objetivo \\
-    Supersampling        & $1{,}75\times$ & Factor de sobremuestreo para antialiasing \\
     $H_0$                & 67,4 km/s/Mpc & Constante de Hubble (Planck 2018) \\
-    $\Omega_m$           & 0,315    & Parámetro de densidad de materia \\
-    $\Omega_\Lambda$     & 0,685    & Parámetro de energía oscura \\
     \bottomrule
   \end{tabular}
-  \label{tab:parametros}
+  \label{tab:parametros_cosmo}
 \end{table}
-
-\subsection{Antialiasing por sobremuestreo}
-\label{sec:antialiasing}
-
-Para mejorar la calidad visual de los bordes de cada objeto (críticos
-en una proyección Pepper's Ghost, donde el vidrio amplifica cualquier
-artefacto de aliasing), la escena se renderiza primero sobre una
-superficie interna de resolución $1{,}75$ veces mayor que la pantalla
-de salida, y luego se reescala hacia abajo mediante interpolación
-bilineal (\texttt{pygame.transform.smoothscale}). Este sobremuestreo
-suaviza los bordes de círculos, halos y discos galácticos —y, en el
-modelo atómico, los bordes de los puntos de la nube y el halo del
-núcleo— sin requerir antialiasing por hardware. El factor
-$1{,}75\times$ es común a ambos modelos.
-
-\subsection{Parámetros de simulación: modelo atómico}
 
 \begin{table}[H]
   \centering
-  \caption{Parámetros del modelo de orbitales atómicos}
+  \caption{Parámetros del modelo atómico}
   \begin{tabular}{lll}
     \toprule
     Parámetro & Valor & Descripción \\
     \midrule
     $N_{\text{puntos}}$    & 6000   & Puntos muestreados por orbital \\
-    $N_{\text{orbitales}}$ & 6      & Orbitales en la secuencia (Tabla~\ref{tab:secuencia_orbitales}) \\
-    $T_{\text{orbital}}$   & 10 s   & Duración de cada orbital en el ciclo \\
-    $T_{\text{ciclo}}$     & 60 s   & Duración total del ciclo \\
-    Inclinación de cámara & $22^\circ$  & Rotación fija en $X$ (ec.~\ref{eq:perspectiva}) \\
-    Supersampling          & $1{,}75\times$ & Factor de sobremuestreo (igual al modelo cosmológico) \\
-    $r_{\text{ref}}$       & percentil 90\% & Radio de normalización de escala por orbital \\
-    $f_{\text{target}}$    & 60 fps & Fotogramas por segundo objetivo \\
+    $N_{\text{orbitales}}$ & 6      & Orbitales en la secuencia \\
+    $T_{\text{orbital}}$   & 10 s   & Duración de cada orbital \\
+    Inclinación de cámara & $22^\circ$  & Rotación fija en $X$ \\
     \bottomrule
   \end{tabular}
   \label{tab:parametros_atomico}
 \end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Parámetros del modelo de funciones de onda 1D}
+  \begin{tabular}{lll}
+    \toprule
+    Parámetro & Valor & Descripción \\
+    \midrule
+    $N_x$              & 400  & Puntos de la grilla espacial \\
+    $N_{\text{sistemas}}$ & 3 & Pozo infinito, oscilador, doble pozo \\
+    $T_{\text{sistema}}$  & 20 s & Duración de cada sistema \\
+    $\alpha$ (coherente)  & 2,5 & Parámetro del estado coherente \\
+    $(a,b)$ doble pozo    & $(0{,}5,\ 0{,}06)$ & Coeficientes de $V(x)=-ax^2+bx^4$ \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:parametros_onda1d}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Parámetros del modelo de funciones de onda 3D}
+  \begin{tabular}{lll}
+    \toprule
+    Parámetro & Valor & Descripción \\
+    \midrule
+    $N_{\text{puntos}}$      & 3000 & Puntos por nube MCMC \\
+    $N_{\text{burn}}$        & 400  & Pasos de quemado (primera evaluación) \\
+    $N_{\text{frames cache}}$ & 12  & Nubes precalculadas por sistema \\
+    $T_{\text{sistema}}$     & 20 s & Duración de cada sistema \\
+    $(\omega_x,\omega_y)$ paquete & $(1{,}0,\ 1{,}6)$ & Frecuencias anisótropas \\
+    Inclinación de cámara    & $20^\circ$ & Rotación fija en $X$ \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:parametros_onda3d}
+\end{table}
+
+Los cuatro modelos comparten: supersampling $1{,}75\times$,
+$f_{\text{target}}=60$ fps, y arquitectura de renderizado Pepper's
+Ghost descrita en la Sección~\ref{sec:antialiasing}.
 
 % =====================================================================
 \section{Resultados Esperados}
@@ -770,48 +830,64 @@ $1{,}75\times$ es común a ambos modelos.
 
 \subsection{Modelo cosmológico}
 
-La simulación reproduce cualitativamente los siguientes fenómenos:
-
 \begin{enumerate}
-  \item \textbf{Expansión acelerada:} para $t > 7\,\text{Gyr}$,
-        la energía oscura domina y $\ddot{a} > 0$, visible como
-        un alejamiento progresivamente más rápido de los objetos.
-  \item \textbf{Corrimiento al rojo:} objetos distantes presentan
-        tonos rojizos, consistente con $z \propto 1/a$.
-  \item \textbf{Horizonte de Hubble:} la esfera límite crece más
-        lentamente que los objetos en sus bordes, ilustrando la
-        naturaleza del horizonte cosmológico.
-  \item \textbf{Momento presente ($t = 13{,}8\,\text{Gyr}$):}
-        marcado visualmente para contextualizar la posición del
-        observador en el tiempo cósmico.
+  \item \textbf{Expansión acelerada:} para $t > 7\,\text{Gyr}$, la
+        energía oscura domina y $\ddot a > 0$.
+  \item \textbf{Corrimiento al rojo:} objetos distantes en tonos
+        rojizos, consistente con $z \propto 1/a$.
+  \item \textbf{Horizonte de Hubble:} crece más lentamente que los
+        objetos en sus bordes.
+  \item \textbf{Momento presente} ($t=13{,}8$ Gyr) marcado
+        visualmente.
 \end{enumerate}
 
 \subsection{Modelo atómico}
 
-La nube de puntos de cada orbital reproduce las características
-cualitativas predichas por la mecánica cuántica:
+\begin{enumerate}
+  \item \textbf{Tamaño creciente con $n$:} extensión radial real
+        $\propto n^2$.
+  \item \textbf{Nodo radial del orbital $2s$:} densidad reducida en
+        $r=2a_0$.
+  \item \textbf{Lóbulos de fase:} bicoloración cian/naranja revela la
+        estructura de signos de $\Theta(\theta,\varphi)$.
+  \item \textbf{Energía de ligadura decreciente:} de $-13{,}60$ a
+        $-1{,}51$ eV a lo largo del ciclo.
+\end{enumerate}
+
+\subsection{Funciones de onda 1D}
 
 \begin{enumerate}
-  \item \textbf{Tamaño creciente con $n$:} aunque las posiciones se
-        normalizan por $r_{\text{ref}}$ para fines visuales, la
-        extensión radial real crece aproximadamente como $n^2$,
-        consistente con $\langle r\rangle_{nl}\propto n^2$ — el
-        orbital $3d$ ocupa, en unidades de $a_0$, una región varias
-        veces mayor que el $1s$.
-  \item \textbf{Nodo radial del orbital $2s$:} la densidad de puntos
-        presenta una región de menor densidad entre dos máximos,
-        correspondiente al cero de $R_{20}(r)$ en $r=2a_0$.
-  \item \textbf{Lóbulos de fase de los orbitales $p$ y $d$:} la
-        bicoloración cian/naranja revela directamente la estructura
-        de signos de $\Theta(\theta,\varphi)$ (Tabla~\ref{tab:angulares}),
-        incluyendo los cuatro lóbulos alternados de $d_{xy}$ y el
-        anillo ecuatorial de signo opuesto a los lóbulos polares de
-        $d_{z^2}$.
-  \item \textbf{Disminución de la energía de ligadura:} la energía
-        $E_n=-13.6/n^2\,\text{eV}$ mostrada en el HUD decrece en
-        magnitud a medida que avanza el ciclo (de $-13.60$ a
-        $-1.51\,\text{eV}$), ilustrando que los estados de mayor $n$
-        están más débilmente ligados al núcleo.
+  \item \textbf{Oscilación del pozo infinito:} la densidad
+        $|\Psi(x,t)|^2$ se desplaza periódicamente entre los extremos
+        del pozo, con periodo $T=2\pi\hbar/(E_2-E_1)$.
+  \item \textbf{Comportamiento clásico del estado coherente:}
+        $\langle x\rangle(t)$ oscila como $\cos(\omega t)$,
+        reproduciendo el límite de correspondencia con el oscilador
+        clásico.
+  \item \textbf{Efecto túnel en el doble pozo:} la densidad oscila
+        entre los dos mínimos sin que la partícula posea energía
+        suficiente para superar clásicamente la barrera central.
+  \item \textbf{Color por fase:} la cinta compleja revela visualmente
+        cómo la fase $\arg\Psi(x,t)$ varía a lo largo de $x$ y en el
+        tiempo, información ausente en gráficos de solo $|\Psi|^2$.
+\end{enumerate}
+
+\subsection{Funciones de onda 3D}
+
+\begin{enumerate}
+  \item \textbf{Pozo esférico:} oscilación visible entre una nube
+        esférica ($l=0$) y una nube dipolar ($l=1$).
+  \item \textbf{Modo $(1,0,0)$ del oscilador 3D:} dos lóbulos
+        claramente separados a lo largo del eje $X$, análogos en
+        forma al orbital $2p_x$ del modelo atómico.
+  \item \textbf{Rotación del centroide:} en el paquete anisótropo, el
+        centro de masa de la nube traza una trayectoria circular en
+        el plano $XY$ con periodo $T\approx10{,}5$.
+  \item \textbf{Validación del muestreo MCMC:} las formas obtenidas
+        son consistentes con las predichas analíticamente para los
+        mismos estados en el modelo atómico (separable), confirmando
+        la correctitud del método de Metropolis--Hastings para casos
+        no separables.
 \end{enumerate}
 
 % =====================================================================
@@ -819,33 +895,33 @@ cualitativas predichas por la mecánica cuántica:
 % =====================================================================
 
 Se ha desarrollado un sistema de visualización holográfica basado en
-Pepper's Ghost que integra dos modelos físicos de naturaleza muy
-distinta —un modelo cosmológico FLRW numéricamente preciso y un modelo
-cuántico de orbitales atómicos basado en muestreo de
-$|\psi_{nlm}|^2$— sobre una misma arquitectura de renderizado en tiempo
-real. La visualización cosmológica permite apreciar de forma intuitiva
-la expansión acelerada del universo, el corrimiento al rojo y el
-horizonte de Hubble; la visualización atómica hace tangibles las formas
-tridimensionales de los orbitales $s$, $p$ y $d$, sus nodos radiales y
-la estructura de fase de sus lóbulos, fenómenos de difícil comprensión
-en representaciones estáticas convencionales.
+Pepper's Ghost que integra cuatro modelos físicos de naturaleza muy
+distinta —cosmológico (FLRW), atómico (orbitales del hidrógeno) y
+cuántico-dinámico en una y tres dimensiones (paquetes de onda)— sobre
+una misma arquitectura de renderizado en tiempo real. La visualización
+cosmológica permite apreciar de forma intuitiva la expansión acelerada
+del universo, el corrimiento al rojo y el horizonte de Hubble; la
+atómica hace tangibles las formas tridimensionales de los orbitales y
+sus lóbulos de fase; y los modelos de funciones de onda 1D y 3D
+muestran, por primera vez en esta serie, la \textbf{evolución
+temporal} explícita de un sistema cuántico, incluyendo fenómenos
+genuinamente no clásicos como el efecto túnel.
 
-La factorización separable de $|\psi_{nlm}|^2$
-(ec.~\ref{eq:factorizacion}) demuestra además que un mismo principio
-—muestreo de una distribución de probabilidad para generar una nube de
-puntos— puede aplicarse tanto a la distribución de galaxias en un
-universo en expansión como a la nube electrónica de un átomo,
-reforzando la idea de una arquitectura de visualización verdaderamente
-compartida.
+El proyecto demuestra además dos estrategias complementarias de
+muestreo de densidades de probabilidad: el muestreo \textbf{separable}
+directo (orbitales atómicos, ec.~\ref{eq:factorizacion}), aplicable
+cuando radio y ángulo son estadísticamente independientes; y el
+muestreo por \textbf{cadenas de Markov} (funciones de onda 3D,
+ec.~\ref{eq:metropolis}), de aplicabilidad general pero mayor costo
+computacional, mitigado mediante precómputo de secuencias temporales.
 
-Como trabajo futuro se propone, para el modelo cosmológico, incluir
-filamentos de la estructura a gran escala, animación del fondo cósmico
-de microondas y la transición entre las épocas de dominación de
-radiación, materia y energía oscura; y para el modelo atómico,
-extender la secuencia a orbitales $f$, incorporar superposiciones de
-estados (paquetes de onda) y añadir un modelo independiente de función
-de onda 1D (pozo de potencial, oscilador armónico) ya prototipado en
-\texttt{models/wavefunction/}.
+Como trabajo futuro se propone: para el modelo cosmológico, incluir
+filamentos de estructura a gran escala y la transición entre épocas de
+dominación; para el atómico, extender a orbitales $f$; y para los
+modelos de funciones de onda, incorporar potenciales adicionales
+(pozo finito, potencial de Morse) y extender el muestreo MCMC con
+algoritmos más eficientes (Hamiltonian Monte Carlo) que permitan
+actualizar la nube en cada cuadro sin precómputo.
 
 % =====================================================================
 \section*{Referencias}
