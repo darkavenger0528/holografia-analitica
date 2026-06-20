@@ -10,7 +10,7 @@ def schwarzschild_radii(mass=1.0):
     }
 
 
-def shader_params(mass=1.0, spin=0.6, disk_inner=None, disk_outer=7.5, camera_distance=9.0, tilt_deg=8.0):
+def shader_params(mass=1.0, spin=0.6, disk_inner=None, disk_outer=6.2, camera_distance=11.0, tilt_deg=4.0):
     radii = schwarzschild_radii(mass)
     return {
         "mass": float(mass),

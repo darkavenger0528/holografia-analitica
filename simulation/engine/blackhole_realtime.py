@@ -174,16 +174,22 @@ vec3 disk_color(vec3 hit, vec3 rd) {
     float swirl = fbm(vec2(a * 3.5 + u_time * 0.6, r * 1.8 - u_time * 0.35));
     float streaks = 0.5 + 0.5 * sin(a * 22.0 - u_time * (3.5 + 0.4 / max(r, 0.2)) + swirl * 4.0);
     float textureMask = mix(0.7, 1.35, swirl) * mix(0.8, 1.25, streaks);
-    vec3 hot = vec3(1.35, 0.78, 0.28);
-    vec3 warm = vec3(1.0, 0.48, 0.12);
-    vec3 cool = vec3(0.55, 0.74, 1.15);
+    // Paleta blanco-azulada (plasma a muy alta temperatura, estilo
+    // "Gargantua"): casi monocromo, con un leve viraje a perla/violeta
+    // en los bordes exteriores en vez de naranja.
+    vec3 hot  = vec3(1.55, 1.50, 1.45);   // núcleo: blanco puro, liger. cálido
+    vec3 warm = vec3(1.35, 1.28, 1.30);   // banda intermedia: blanco-perla
+    vec3 cool = vec3(0.85, 0.88, 1.05);   // borde exterior: blanco-azulado
     float radialMix = clamp((r - u_disk_inner) / (u_disk_outer - u_disk_inner), 0.0, 1.0);
     vec3 base = mix(hot, cool, radialMix * 0.55);
     base = mix(base, warm, band * 0.45);
-    float intensity = (0.55 * innerHeat + 1.1 * band + 0.75 * ring) * textureMask * beaming;
+    float intensity = (0.40 * innerHeat + 1.35 * band + 1.15 * ring) * textureMask * beaming;
     intensity *= exp(-0.06 * (r - u_disk_inner));
+    // Exposición elevada: sobre-expone el disco para el look "quemado
+    // de blanco" característico, en vez de bandas de color separadas.
+    intensity *= 1.8;
     vec3 col = base * intensity;
-    col += vec3(1.2, 0.85, 0.45) * ring * 0.55;
+    col += vec3(1.3, 1.28, 1.25) * ring * 0.7;
     return col;
 }
 
@@ -204,12 +210,14 @@ void main() {
     }
     color += starfield(bent);
     float center = length(uv);
-    float shadow = smoothstep(0.20, 0.145, center);
-    float glow = exp(-pow((center - 0.19) / 0.05, 2.0)) * 0.45;
+    float shadow = smoothstep(0.20, 0.165, center);
+    float glow = exp(-pow((center - 0.195) / 0.032, 2.0)) * 0.6;
     color = mix(color, vec3(0.0), shadow);
-    color += vec3(1.15, 0.78, 0.34) * glow;
+    color += vec3(1.25, 1.22, 1.30) * glow;
+    // Exposición global elevada (look "sobre-expuesto" tipo Gargantua)
+    color *= 1.35;
     color = color / (1.0 + color);
-    color = pow(color, vec3(0.85));
+    color = pow(color, vec3(0.55));
     // Dithering para evitar banding visible en degradados suaves
     // (horizonte, disco) en displays/GPUs de menor precisión de color.
     float dither = (hash21(gl_FragCoord.xy + fract(u_time) * 37.0) - 0.5) / 255.0;
@@ -246,7 +254,7 @@ def build_gl_engine(args):
     quad = ctx.buffer(quad_vertices)
     vao = ctx.simple_vertex_array(prog, quad, "in_pos")
     
-    params = shader_params(mass=1.0, spin=0.72, camera_distance=9.0, tilt_deg=8.0)
+    params = shader_params(mass=1.0, spin=0.72, disk_outer=6.2, camera_distance=11.0, tilt_deg=4.0)
     prog["u_resolution"].value = (args.width, args.height)
     prog["u_mass"].value = params["mass"]
     prog["u_spin"].value = params["spin"]
