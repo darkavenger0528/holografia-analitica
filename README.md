@@ -38,6 +38,7 @@ holografia-analitica/
 | Orbital atómico (H) | ✅ Listo (tiempo real) | Nube de probabilidad \|ψ_nlm\|², ciclo 1s→2s→2p→3d |
 | Función de onda 1D | ✅ Listo (tiempo real) | Ψ(x,t) compleja: pozo infinito, oscilador armónico, doble pozo |
 | Función de onda 3D | ✅ Listo (tiempo real) | Ψ(x,y,z,t) por muestreo MCMC: pozo esférico, oscilador 3D, paquete anisótropo |
+| Agujero negro | ✅ Listo (tiempo real, GPU) | Lente gravitacional, horizonte de eventos, disco de acreción con Doppler (shader GLSL) |
 
 ---
 

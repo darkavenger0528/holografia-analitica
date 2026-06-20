@@ -50,9 +50,15 @@ MODELOS = {
         detalle = "Pozo esférico · Oscilador 3D · Paquete anisótropo · 20s c/u (MCMC)",
         controles = "ESPACIO=pausa  R=reiniciar  ←/→=sistema  +/-=velocidad",
     ),
+    "blackhole": dict(
+        script  = "blackhole_realtime.py",
+        desc    = "Agujero negro — lente gravitacional (shader GLSL)",
+        detalle = "Raymarching en tiempo real: horizonte, disco de acreción, efecto Doppler",
+        controles = "ESPACIO=pausa  R=reiniciar  +/-=velocidad  (requiere GPU con OpenGL 3.3+)",
+    ),
 }
 
-DEMO_ORDEN   = ["universe", "atomic", "wavefunction", "wavefunction3d"]
+DEMO_ORDEN   = ["universe", "atomic", "wavefunction", "wavefunction3d", "blackhole"]
 DEMO_DURACION = 60  # segundos por modelo en modo demo (usar Ctrl+C para avanzar)
 
 
