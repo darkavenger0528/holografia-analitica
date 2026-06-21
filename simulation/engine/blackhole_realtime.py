@@ -103,8 +103,8 @@ vec3 starfield(vec3 rd) {
 }
 
 float bend_strength(float b) {
-    float farTerm = (0.25 * u_mass) / (b + 0.35);
-    float ringTerm = 0.95 * exp(-pow((b - u_photon_sphere) * 1.6, 2.0));
+    float farTerm = (0.40 * u_mass) / (b + 0.26);
+    float ringTerm = 1.2 * exp(-pow((b - u_photon_sphere) * 1.4, 2.0));
     return farTerm + ringTerm;
 }
 
@@ -134,7 +134,8 @@ bool disk_intersection(vec3 ro, vec3 rd, out vec3 hit) {
     vec3 p = ro;
     vec3 d = normalize(rd);
     float prevY = p.y;
-    for (int i = 0; i < 180; i++) {
+    float diskHalfThickness = 0.22;
+    for (int i = 0; i < 260; i++) {
         float r = length(p);
         if (r < u_event_horizon * 0.92) return false;
         float impact = length(cross(p, d));
@@ -143,12 +144,19 @@ bool disk_intersection(vec3 ro, vec3 rd, out vec3 hit) {
         vec3 dragAxis = vec3(0.0, 1.0, 0.0);
         vec3 frameDrag = normalize(cross(dragAxis, p + vec3(1e-5))) * (u_spin * 0.0013 / (r + 0.5));
         d = normalize(d + toCenter * bend + frameDrag);
-        float step = mix(0.028, 0.08, smoothstep(u_event_horizon * 0.92, u_event_horizon * 2.2, r));
+        float step = mix(0.018, 0.06, smoothstep(u_event_horizon * 0.92, u_event_horizon * 2.2, r));
         p += d * step;
-        if ((prevY > 0.0 && p.y <= 0.0) || (prevY < 0.0 && p.y >= 0.0)) {
-            vec3 h = p;
-            float rr = length(h.xz);
-            if (rr > u_disk_inner && rr < u_disk_outer) {                hit = h;
+        // Registra paso por el "volumen" del disco (banda delgada en
+        // |y|<diskHalfThickness), no solo el cruce exacto de y=0. Esto
+        // le da sustento visual a la imagen lensada secundaria (el
+        // gran arco que pasa por encima/debajo del horizonte), que de
+        // otro modo sería una línea infinitesimal.
+        bool crossedPlane = (prevY > 0.0 && p.y <= 0.0) || (prevY < 0.0 && p.y >= 0.0);
+        bool insideSlab = abs(p.y) < diskHalfThickness;
+        if (crossedPlane || insideSlab) {
+            float rr = length(p.xz);
+            if (rr > u_disk_inner && rr < u_disk_outer) {
+                hit = vec3(p.x, 0.0, p.z);
                 return true;
             }
         }
@@ -164,32 +172,38 @@ vec3 disk_color(vec3 hit, vec3 rd) {
     vec2 tangent = normalize(vec2(-sin(a), cos(a)));
     vec2 view2 = normalize(rd.xz + vec2(1e-6));
     float toward = dot(tangent, -view2);
-    float beta = clamp(toward * orbit * 0.55, -0.92, 0.92);
+    // Doppler más marcado: el lado que se acerca queda mucho más
+    // brillante/blanco que el lado que se aleja (rojizo y tenue),
+    // como en la referencia con spin alto (a/M=0.999).
+    float beta = clamp(toward * orbit * 0.80, -0.96, 0.96);
     float gamma = 1.0 / sqrt(1.0 - beta * beta);
     float doppler = 1.0 / (gamma * (1.0 - beta));
-    float beaming = clamp(pow(doppler, 2.4), 0.35, 5.0);
-    float innerHeat = pow(1.0 / max(r - u_event_horizon, 0.18), 0.82);
-    float band = exp(-pow((r - (u_isco * 1.15)) / 0.65, 2.0));
-    float ring = exp(-pow((r - u_photon_sphere) / 0.18, 2.0));
+    float beaming = clamp(pow(doppler, 3.2), 0.18, 9.0);
+
+    // Tres bandas DELGADAS y separadas en vez de un halo difuso ancho:
+    //   ring   -> anillo de fotones, pegado al horizonte (muy fino)
+    //   isco   -> borde interior brillante del disco (fino)
+    //   body   -> cuerpo del disco, atenuado suavemente hacia afuera
+    float ring = exp(-pow((r - u_photon_sphere) / 0.10, 2.0));
+    float isco = exp(-pow((r - u_isco) / 0.22, 2.0));
+    float body = exp(-max(r - u_isco, 0.0) / 1.6);
+
     float swirl = fbm(vec2(a * 3.5 + u_time * 0.6, r * 1.8 - u_time * 0.35));
     float streaks = 0.5 + 0.5 * sin(a * 22.0 - u_time * (3.5 + 0.4 / max(r, 0.2)) + swirl * 4.0);
-    float textureMask = mix(0.7, 1.35, swirl) * mix(0.8, 1.25, streaks);
-    // Paleta blanco-azulada (plasma a muy alta temperatura, estilo
-    // "Gargantua"): casi monocromo, con un leve viraje a perla/violeta
-    // en los bordes exteriores en vez de naranja.
-    vec3 hot  = vec3(1.55, 1.50, 1.45);   // núcleo: blanco puro, liger. cálido
-    vec3 warm = vec3(1.35, 1.28, 1.30);   // banda intermedia: blanco-perla
-    vec3 cool = vec3(0.85, 0.88, 1.05);   // borde exterior: blanco-azulado
-    float radialMix = clamp((r - u_disk_inner) / (u_disk_outer - u_disk_inner), 0.0, 1.0);
-    vec3 base = mix(hot, cool, radialMix * 0.55);
-    base = mix(base, warm, band * 0.45);
-    float intensity = (0.40 * innerHeat + 1.35 * band + 1.15 * ring) * textureMask * beaming;
-    intensity *= exp(-0.06 * (r - u_disk_inner));
-    // Exposición elevada: sobre-expone el disco para el look "quemado
-    // de blanco" característico, en vez de bandas de color separadas.
-    intensity *= 1.8;
+    float textureMask = mix(0.75, 1.25, swirl) * mix(0.85, 1.15, streaks);
+
+    // Paleta amarillenta/dorada cálida, como en la referencia:
+    // núcleo casi blanco -> ámbar -> naranja tenue en el borde exterior.
+    vec3 hot    = vec3(1.60, 1.45, 1.05);   // blanco-amarillo (anillo fotones)
+    vec3 amber  = vec3(1.45, 1.05, 0.45);   // ámbar (borde ISCO)
+    vec3 ember  = vec3(0.95, 0.55, 0.18);   // naranja tenue (cuerpo exterior)
+
+    vec3 base = mix(ember, amber, clamp(isco + body * 0.5, 0.0, 1.0));
+    base = mix(base, hot, ring);
+
+    float intensity = (3.2 * ring + 1.1 * isco + 0.55 * body) * textureMask * beaming;
+
     vec3 col = base * intensity;
-    col += vec3(1.3, 1.28, 1.25) * ring * 0.7;
     return col;
 }
 
@@ -210,14 +224,15 @@ void main() {
     }
     color += starfield(bent);
     float center = length(uv);
-    float shadow = smoothstep(0.20, 0.165, center);
-    float glow = exp(-pow((center - 0.195) / 0.032, 2.0)) * 0.6;
+    float shadow = smoothstep(0.20, 0.178, center);
+    float glow = exp(-pow((center - 0.20) / 0.012, 2.0)) * 0.35;
     color = mix(color, vec3(0.0), shadow);
-    color += vec3(1.25, 1.22, 1.30) * glow;
-    // Exposición global elevada (look "sobre-expuesto" tipo Gargantua)
-    color *= 1.35;
+    color += vec3(1.5, 1.35, 0.95) * glow;
+    // Exposición global moderada (los anillos ya están bien definidos,
+    // no se necesita sobre-exponer para "rellenar" la imagen).
+    color *= 1.05;
     color = color / (1.0 + color);
-    color = pow(color, vec3(0.55));
+    color = pow(color, vec3(0.70));
     // Dithering para evitar banding visible en degradados suaves
     // (horizonte, disco) en displays/GPUs de menor precisión de color.
     float dither = (hash21(gl_FragCoord.xy + fract(u_time) * 37.0) - 0.5) / 255.0;
@@ -228,6 +243,21 @@ void main() {
 
 def build_gl_engine(args):
     import moderngl
+
+    # Forzar el uso de la GPU dedicada (NVIDIA) en sistemas híbridos
+    # Intel/NVIDIA (PRIME / Optimus en Linux). Sin esto, el compositor
+    # (especialmente bajo Wayland/Hyprland) suele asignar por defecto
+    # la GPU integrada, que es mucho más lenta para este shader.
+    os.environ.setdefault("__NV_PRIME_RENDER_OFFLOAD", "1")
+    os.environ.setdefault("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+    os.environ.setdefault("__VK_LAYER_NV_optimus", "NVIDIA_only")
+    # Equivalente para sesiones EGL/Wayland puras — solo si el vendor
+    # JSON de NVIDIA existe en el sistema (evita romper el fallback
+    # a Mesa/software en máquinas sin esa librería instalada).
+    _nv_egl_json = "/usr/share/glvnd/egl_vendor.d/10_nvidia.json"
+    if os.path.exists(_nv_egl_json):
+        os.environ.setdefault("__EGL_VENDOR_LIBRARY_FILENAMES", _nv_egl_json)
+
     if getattr(args, "display", 0) == 1:
         os.environ["SDL_VIDEO_WINDOW_POS"] = f"{args.width + 10},0"
     pygame.init()
@@ -241,6 +271,26 @@ def build_gl_engine(args):
     
     ctx = moderngl.create_context()
     ctx.enable(moderngl.BLEND)
+
+    # Diagnóstico: informar qué GPU/driver quedó activo realmente.
+    renderer = ctx.info.get("GL_RENDERER", "desconocido")
+    vendor   = ctx.info.get("GL_VENDOR", "desconocido")
+    version  = ctx.info.get("GL_VERSION", "desconocido")
+    print(f"[GPU] Renderer : {renderer}")
+    print(f"[GPU] Vendor   : {vendor}")
+    print(f"[GPU] GL ver.  : {version}")
+    renderer_lower = renderer.lower()
+    if "llvmpipe" in renderer_lower or "software" in renderer_lower:
+        print("[GPU] AVISO: el contexto cayó en renderizado por SOFTWARE.")
+        print("[GPU]   -> En Hyprland/Wayland prueba lanzar con:")
+        print("[GPU]      __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia python run_model.py blackhole")
+        print("[GPU]   -> O verifica con 'nvidia-smi' que el driver esté cargado.")
+    elif "intel" in renderer_lower or "uhd" in renderer_lower:
+        print("[GPU] AVISO: está usando la GPU integrada (Intel UHD), no la RTX 3050.")
+        print("[GPU]   -> Revisa la configuración PRIME/Optimus del sistema.")
+    else:
+        print("[GPU] OK: parece estar usando una GPU dedicada por hardware.")
+
     prog = ctx.program(vertex_shader=VERTEX_SHADER, fragment_shader=FRAGMENT_SHADER)
     
     # Quad optimizado de 4 vértices para TRIANGLE_STRIP usando NumPy
@@ -254,7 +304,7 @@ def build_gl_engine(args):
     quad = ctx.buffer(quad_vertices)
     vao = ctx.simple_vertex_array(prog, quad, "in_pos")
     
-    params = shader_params(mass=1.0, spin=0.72, disk_outer=6.2, camera_distance=11.0, tilt_deg=4.0)
+    params = shader_params(mass=1.0, spin=0.95, disk_outer=6.2, camera_distance=11.0, tilt_deg=4.0)
     prog["u_resolution"].value = (args.width, args.height)
     prog["u_mass"].value = params["mass"]
     prog["u_spin"].value = params["spin"]
